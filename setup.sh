@@ -31,6 +31,7 @@ service vpnserver restart
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 sed -i '/^\s*[@#]/ d' *.ovpn
+sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
 echo "Go to the this url to get your OpenVPN config file"
 cat *_remote*.ovpn | ./scrunge.sh
