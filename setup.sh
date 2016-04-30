@@ -19,10 +19,10 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo deb
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
 
 apt-get install iptables-persistent -y
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/iptables-vpn.sh
+wget 
 sh iptables-vpn.sh
 
-wget -O /etc/dnsmasq.conf  https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
-wget -O /usr/vpnserver/vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
+wget -O /etc/dnsmasq.conf  
+wget -O /usr/vpnserver/vpn_server.config 
 service dnsmasq restart
 service vpnserver start
