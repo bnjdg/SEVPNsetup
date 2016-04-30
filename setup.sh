@@ -31,6 +31,8 @@ vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
 chmod +x scrunge.sh
+sed -i '/^\s*[@#]/ d' *.ovpn
+sed -i '/^\s*$/d' *.ovpn
 echo "Go to the this url to get your OpenVPN config file"
 cat *_remote*.ovpn | ./scrunge.sh
 
