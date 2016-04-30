@@ -28,11 +28,11 @@ cd ..
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
 chmod +x scrunge.sh
 service vpnserver restart
-echo "Go to the this url to get your OpenVPN config file"
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
+echo "Go to the this url to get your OpenVPN config file"
 cat *_remote*.ovpn | ./scrunge.sh
 echo "Please use the SE-Server Manager/vpncmd to set a server password for security purposes"
 echo "you can run this vpncmd 127.0.0.1:5555 /SERVER /CMD:ServerPasswordSet to set a password"
