@@ -5,6 +5,7 @@
 apt-get update -y && apt-get upgrade -y
 apt-get dist-upgrade -y
 apt-get install -y git dnsmasq bc make gcc openssl build-essential libreadline-dev libncurses5-dev libssl-dev upstart-sysv
+apt-get install -y unzip
 
 git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 cd SoftEtherVPN
@@ -26,3 +27,10 @@ wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f
 wget -O /usr/vpnserver/vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
 service dnsmasq restart
 service vpnserver start
+vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
+unzip openvpn.zip
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
+chmod +x scrunge.sh
+echo "Go to the this url to get your OpenVPN config file"
+cat *_remote*.ovpn | ./scrunge.sh
+
