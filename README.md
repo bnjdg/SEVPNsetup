@@ -33,4 +33,4 @@ IP tables are configured to provide DDOS protection and port redirection:
 
 Lastly: It outputs a URL with the Sample OpenVPN config which can be modified to connect to various ports.
 
-##Note that you need to set a server password using SE-VPN Server Manager after setup so that your server will be secure
+Then it prompts you to set a server password
