@@ -1,6 +1,6 @@
 # Readme
 
-A shell script to install VPN using SoftEther and Transmission CLI Torrent Client on Ubuntu 14.04 for use on Digital Ocean
+A shell script to install VPN using SoftEther on Ubuntu VPS like DigitalOcean
 
 ## Execution
 
