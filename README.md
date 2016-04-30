@@ -9,7 +9,7 @@ A shell script to install VPN using SoftEther on Ubuntu VPS like DigitalOcean
 ```shell
 sudo su
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/setup.sh
-sh setup
+sh setup.sh
 ```
 
 The SoftEther VPN server is preset to have one VirtualHub and one account in it named vpn with password vpn
