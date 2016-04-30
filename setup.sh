@@ -6,7 +6,7 @@ apt-get update -y && apt-get upgrade -y
 apt-get dist-upgrade -y
 apt-get install -y dnsmasq bc make gcc openssl build-essential
 
-wget http://www.softether-download.com/files/softether/v4.20-9608-rtm-2016.04.17-tree/Linux/SoftEther_VPN_Server/64bit_-_Intel_x64_or_AMD64/softether-vpnserver-v4.20-9608-rtm-2016.04.17-linux-x64-64bit.tar.gz
+wget 
 tar xvf softether-vpnserver-v4.20-9608-rtm-2016.04.17-linux-x64-64bit.tar.gz
 cd vpnserver
 make i_read_and_agree_the_license_agreement
