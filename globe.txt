@@ -1,14 +1,14 @@
-http-proxy 203.177.42.214 8080
-http-proxy-retry
-http-proxy-option CUSTOM-HEADER Host m.facebook.com/
-http-proxy-option CUSTOM-HEADER X-Online-Host m.facebook.com/
-route-method exe
-route-delay 2
-keepalive 10 30
-redirect-gateway def1
-dhcp-option DNS 208.67.222.222
-dhcp-option DNS 8.8.8.8
-dhcp-option DNS 4.2.2.1
-register-dns
-
-<ca>
+http-proxy 203.177.42.214 8080 \
+http-proxy-retry \
+http-proxy-option CUSTOM-HEADER Host m.facebook.com \ 
+http-proxy-option CUSTOM-HEADER X-Online-Host m.facebook.com \
+route-method exe \
+route-delay 2 \
+keepalive 10 30 \
+redirect-gateway def1 \
+dhcp-option DNS 208.67.222.222 \
+dhcp-option DNS 8.8.8.8 \
+dhcp-option DNS 4.2.2.1 \
+register-dns \
+\ 
+<ca> \
