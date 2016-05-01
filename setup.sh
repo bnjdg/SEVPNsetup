@@ -39,6 +39,8 @@ rm -f *bridge_l2.ovpn
 cp $REMOTE $SRVHOSTNAMEGLOBE
 cp $REMOTE $SRVHOSTNAMETNT
 cp $REMOTE $SRVHOSTNAMEUDP
+sed -i '/^\s*[@#]/ d' *.ovpn
+sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
 sed -i 's/udp/tcp/' *tcp*.ovpn
 sed -i 's/1194/443/' *tcp*.ovpn
@@ -46,12 +48,9 @@ sed -i 's/udp/tcp/' *udp*.ovpn
 sed -i 's/1194/9201/' *udp*.ovpn
 sed -i 's/443/9201/' *udp*.ovpn
 sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
-sed -i "s/<ca>/$GLOBE_MGC/" *tcp_globe_mgc.ovpn
-sed -i "s/<ca>/$TNT/" *tcp_tnt.ovpn
-sed -i "s/<ca>/$GLOBE_INET/" *udp_globe_inet.ovpn
-register-dns\n\n<ca>/' *.ovpn
-sed -i '/^\s*[@#]/ d' *.ovpn
-sed -i '/^\s*[@;]/ d' *.ovpn
+sed -i "s/\<ca\>/$GLOBE_MGC/" *tcp_globe_mgc.ovpn
+sed -i "s/\<ca\>/$TNT/" *tcp_tnt.ovpn
+sed -i "s/\<ca\>/$GLOBE_INET/" *udp_globe_inet.ovpn
 sed -i '/^\s*$/d' *.ovpn
 
 clear
