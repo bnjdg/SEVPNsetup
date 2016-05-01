@@ -72,13 +72,13 @@ iptables -A FORWARD -i eth0 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCE
 
 
 #redirect TNT ports to SoftEther VPN TCP
-iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -j REDIRECT --to-port 995
-iptables -A INPUT -i eth0 -p tcp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -j REDIRECT --to-port 995
+iptables -A INPUT -i eth0 -p tcp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
 
-iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -j REDIRECT --to-port 1194
-iptables -A INPUT -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -j REDIRECT --to-port 1194
+iptables -A INPUT -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
 
 iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 5243,9785 -j REDIRECT --to-port 1194
 iptables -A INPUT -i eth0 -p udp -m multiport --dports 5243,9785 -m state --state NEW,ESTABLISHED -j ACCEPT
@@ -116,7 +116,7 @@ iptables -A FORWARD -i eth0 -o tap_soft -m state --state RELATED,ESTABLISHED -j 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 iptables -A OUTPUT -p udp -m multiport --dports 53,67,68 -j ACCEPT
-iptables -A INPUT -p udp -m multiport --sports 53,67,68 -j ACCEPT
+iptables -A INPUT -p udp -m multiport --sports 53,67,68 -j ACCEPT5242,4244,3128,9200,9201,21,137,8484,82,443,80
 iptables -A OUTPUT -p tcp -m multiport --dports 53,67,68 -j ACCEPT
 iptables -A INPUT -p tcp -m multiport --sports 53,67,68 -j ACCEPT
 

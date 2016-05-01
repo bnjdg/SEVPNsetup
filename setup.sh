@@ -30,12 +30,20 @@ chmod +x scrunge.sh
 service vpnserver restart
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
+myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+rm -f *bridge_l2.ovpn
+sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
 sed -i 's/udp/tcp/' *.ovpn
 sed -i 's/1194/443/' *.ovpn
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
+clear
 echo "Go to the this url to get your OpenVPN config file"
 cat *_remote*.ovpn | ./scrunge.sh
+echo "Server WAN/Public IP address: ${myip}"
+echo "Ports for SofthEther VPN:"
+echo "SEVPN/OpenVPN TCP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484"
+echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"
 echo "Please use the SE-Server Manager/vpncmd to set a server password for security purposes"
 echo "you can run this vpncmd 127.0.0.1:5555 /SERVER /CMD:ServerPasswordSet to set a password"
