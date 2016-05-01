@@ -13,6 +13,7 @@ cd SoftEtherVPN
 cp src/makefiles/linux_64bit.mak Makefile
 make
 make install
+cd ..
 wget -O /etc/init.d/vpnserver https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpnserver.init
 chmod +x /etc/init.d/vpnserver
 update-rc.d vpnserver defaults
@@ -24,7 +25,7 @@ wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f
 wget -O /usr/vpnserver/vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
 service dnsmasq restart
 service vpnserver start
-cd ..
+
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
 chmod +x scrunge.sh
 service vpnserver restart
