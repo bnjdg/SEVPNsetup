@@ -88,9 +88,7 @@ iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 2000:4499,450
 iptables -A INPUT -i eth0 -p udp -m multiport --dports 2000:4499,4501:8000 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 2000:4499,4501:8000 -m state --state ESTABLISHED -j ACCEPT
 
-
 #allow ssh,www,https, letsencrypt
-
 iptables -A OUTPUT -p tcp -m multiport --dports 22,80,443,54321 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A INPUT -p tcp -m multiport --sports 22,80,443,54321 -m state --state ESTABLISHED -j ACCEPT
 iptables -A INPUT -p tcp -m multiport --dports 22,80,443,54321 -m state --state NEW,ESTABLISHED -j ACCEPT
@@ -112,6 +110,19 @@ iptables -A FORWARD -i tap_soft -j ACCEPT
 iptables -A FORWARD -i tap_soft -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i eth0 -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
 
+iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 53 -j DNAT --to-destination 172.16.0.1:53
+iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 5353 -j DNAT --to-destination 172.16.0.1:53
+iptables -t nat -A PREROUTING -i tap_soft -p tcp --dport 5353 -j DNAT --to-destination 172.16.0.1:53
+iptables -t nat -A PREROUTING -i tap_soft -p tcp --dport 53 -j DNAT --to-destination 172.16.0.1:53
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.222.123 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.220.123 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 81.218.119.11 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 209.88.198.133 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.126.20 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.127.20 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 172.16.0.1 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -j DROP
+
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
@@ -119,7 +130,6 @@ iptables -A OUTPUT -p udp -m multiport --dports 53,67,68 -j ACCEPT
 iptables -A INPUT -p udp -m multiport --sports 53,67,68 -j ACCEPT
 iptables -A OUTPUT -p tcp -m multiport --dports 53,67,68 -j ACCEPT
 iptables -A INPUT -p tcp -m multiport --sports 53,67,68 -j ACCEPT
-
 
 #nat
 iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -j MASQUERADE
