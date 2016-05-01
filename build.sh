@@ -14,40 +14,72 @@ cp src/makefiles/linux_64bit.mak Makefile
 make
 make install
 cd ..
-wget -O /etc/init.d/vpnserver https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpnserver.init
-chmod +x /etc/init.d/vpnserver
-update-rc.d vpnserver defaults
+wget -O /etc/init.d/softether_vpnserver https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpnserver.init
+chmod +x /etc/init.d/softether_vpnserver
+update-rc.d softether_vpnserver defaults
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/iptables-vpn.sh
+chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
+rm -f iptables-vpn.sh
 
 wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
-wget -O /usr/vpnserver/vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
-service dnsmasq restart
-service vpnserver start
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
-chmod +x scrunge.sh
-FILE=/usr/share/dict/american-english
-WORD=$(sort -R $FILE | head -1)
-vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD
+wget -O vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
+vpncmd 127.0.0.1:5555 /SERVER /CMD:ConfigSet vpn_server.config
 service vpnserver restart
+service dnsmasq restart
+rm -f vpn_server.config
+
+wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
+chmod 755 /usr/bin/sprunge
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+GLOBE_MGC="$(cat globe.txt)"
+TNT="$(cat tnt.txt)"
+GLOBE_INET="$(cat udp.txt)"
+REMOTE="$(ls *remote*.ovpn)"
+SRVHOSTNAMEGLOBE="$(hostname)_tcp_globe_mgc.ovpn"
+SRVHOSTNAMETNT="$(hostname)_tcp_tnt.ovpn"
+SRVHOSTNAMEUDP="$(hostname)_udp_globe_inet.ovpn"
 rm -f *bridge_l2.ovpn
-sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
-sed -i 's/udp/tcp/' *.ovpn
-sed -i 's/1194/443/' *.ovpn
+cp $REMOTE $SRVHOSTNAMEGLOBE
+cp $REMOTE $SRVHOSTNAMETNT
+cp $REMOTE $SRVHOSTNAMEUDP
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
+sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
+sed -i 's/udp/tcp/' *tcp*.ovpn
+sed -i 's/1194/443/' *tcp*.ovpn
+sed -i 's/tcp/udp/' *udp*.ovpn
+sed -i 's/1194/9201/' *udp*.ovpn
+sed -i 's/443/9201/' *udp*.ovpn
+sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
+sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
+sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
+sed -i "s#<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
+
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/getconfig.sh
+chmod +x getconfig.sh
+rm -f *.txt
+rm -f *.pdf
 
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
 echo "\033[1;34m"
-echo "Go to the this url to get your OpenVPN config file"
+echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
-cat *_remote*.ovpn | ./scrunge.sh
+cat *tcp_globe*.ovpn | sprunge
+cat *tcp_tnt*.ovpn | sprunge
+cat *udp*.ovpn | sprunge
+rm -f *.ovpn
+echo "\033[1;34m"
+echo "Don't forget to make a text file named account.txt to put your username"
+echo "and your password, first line username. 2nd line password."
 echo "\033[1;34m"
 echo "Server WAN/Public IP address: ${myip}"
 echo ""
@@ -59,5 +91,5 @@ echo "Ports for SofthEther VPN:"
 echo "SEVPN/OpenVPN TCP Ports: 80,82,443,995,992,5555,5242,4244,3128,9200,9201,21,137,8484"
 echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"
 echo ""
-echo "Please use the SE-Server Manager/vpncmd to set a server password for security purposes"
-echo "\033[1;34myou can run this \033[0;35mvpncmd 127.0.0.1:5555 /SERVER /CMD:ServerPasswordSet \033[1;34mto set a password"
+echo "Please set your server password via SE-VPN Manager."
+echo "\033[0m"
