@@ -51,7 +51,7 @@ sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
 sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
 sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
-sed -i "s$<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
+sed -i "s#<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
