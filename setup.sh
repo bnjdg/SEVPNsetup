@@ -19,13 +19,13 @@ sh iptables-vpn.sh
 rm -f iptables-vpn.sh
 
 wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
-wget -O ~/vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
-vpncmd 127.0.0.1:5555 /SERVER /CMD:ConfigSet ~/vpn_server
+wget -O vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
+vpncmd 127.0.0.1:5555 /SERVER /CMD:ConfigSet vpn_server
 service vpnserver restart
 service dnsmasq restart
 
 wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
-chmod +x /usr/bin/spruunge
+chmod 755 /usr/bin/sprunge
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
