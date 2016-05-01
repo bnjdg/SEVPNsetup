@@ -116,7 +116,7 @@ iptables -A FORWARD -i eth0 -o tap_soft -m state --state RELATED,ESTABLISHED -j 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 iptables -A OUTPUT -p udp -m multiport --dports 53,67,68 -j ACCEPT
-iptables -A INPUT -p udp -m multiport --sports 53,67,68 -j ACCEPT5242,4244,3128,9200,9201,21,137,8484,82,443,80
+iptables -A INPUT -p udp -m multiport --sports 53,67,68 -j ACCEPT
 iptables -A OUTPUT -p tcp -m multiport --dports 53,67,68 -j ACCEPT
 iptables -A INPUT -p tcp -m multiport --sports 53,67,68 -j ACCEPT
 
