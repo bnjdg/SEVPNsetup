@@ -25,9 +25,11 @@ wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f
 wget -O /usr/vpnserver/vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
 service dnsmasq restart
 service vpnserver start
-
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
 chmod +x scrunge.sh
+FILE=/usr/share/dict/american-english
+WORD=$(sort -R $FILE | head -1)
+vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD
 service vpnserver restart
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
@@ -39,6 +41,7 @@ sed -i 's/1194/443/' *.ovpn
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
+
 clear
 echo "Finished Installing SofthEtherVPN."
 echo ""
