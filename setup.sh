@@ -6,6 +6,7 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential upstart-sysv iptables-persistent softether-vpncmd softether-vpnserver
 
+service softether_vpn stop
 update-rc.d softether_vpnserver remove
 rm -f /etc/init.d/softether_vpnserver
 wget -O /etc/init.d/softether_vpnserver https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpnserver.init
@@ -13,11 +14,13 @@ chmod +x /etc/init.d/softether_vpnserver
 update-rc.d softether_vpnserver defaults
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/iptables-vpn.sh
+chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
 
 wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
+service softether_vpn stop
 wget -O /opt/vpnserver/vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
-service softether-vpnserver restart
+service softether-vpnserver start
 service dnsmasq restart
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
