@@ -48,10 +48,10 @@ sed -i 's/udp/tcp/' *udp*.ovpn
 sed -i 's/1194/9201/' *udp*.ovpn
 sed -i 's/443/9201/' *udp*.ovpn
 sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
+sed -i '/^\s*$/d' *.ovpn
 sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
 sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
 sed -i "s$<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
-sed -i '/^\s*$/d' *.ovpn
 
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
@@ -61,6 +61,9 @@ echo "\033[1;33m"
 cat *tcp_globe*.ovpn | ./scrunge.sh
 cat *tcp_tnt*.ovpn | ./scrunge.sh
 cat *udp*.ovpn | ./scrunge.sh
+echo "\033[1;34m"
+echo "Don't forget to make a text file named account.txt to put your username"
+echo "and your password, first line username. 2nd line password."
 echo "\033[1;34m"
 echo "Server WAN/Public IP address: ${myip}"
 echo ""
