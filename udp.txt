@@ -6,3 +6,5 @@ dhcp-option DNS 208.67.222.222
 dhcp-option DNS 8.8.8.8
 dhcp-option DNS 4.2.2.1
 register-dns
+
+<ca>

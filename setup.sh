@@ -22,18 +22,33 @@ service dnsmasq restart
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
 chmod +x scrunge.sh
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+GLOBE_MGC="$(cat globe.txt)"
+TNT="$(cat tnt.txt)"
+GLOBE_INET="$(cat udp.txt)"
+REMOTE="$(ls *remote*.ovpn)"
+SRVHOSTNAMEGLOBE="$(hostname)_tcp_globe_mgc.ovpn"
+SRVHOSTNAMETNT="$(hostname)_tcp_tnt.ovpn"
+SRVHOSTNAMEUDP="$(hostname)_udp_globe_inet.ovpn"
 rm -f *bridge_l2.ovpn
+cp $REMOTE $SRVHOSTNAMEGLOBE
+cp $REMOTE $SRVHOSTNAMETNT
+cp $REMOTE $SRVHOSTNAMEUDP
 sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
-sed -i 's/udp/tcp/' *.ovpn
-sed -i 's/1194/443/' *.ovpn
+sed -i 's/udp/tcp/' *tcp*.ovpn
+sed -i 's/1194/443/' *tcp*.ovpn
+sed -i 's/udp/tcp/' *udp*.ovpn
+sed -i 's/1194/9201/' *udp*.ovpn
+sed -i 's/443/9201/' *udp*.ovpn
 sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
-sed -i 's/<ca>/\http-proxy 203.177.42.214 8080\nhttp-proxy-retr\nhttp-proxy-option CUSTOM-HEADER Host m.facebook.com\nhttp-proxy-option CUSTOM-HEADER X-Online-Host m.facebook.com\nroute-method exe\nroute-delay 2\nkeepalive 10 30\nredirect-gateway def1 \
-dhcp-option DNS 208.67.222.222 \
-dhcp-option DNS 8.8.8.8 \
-dhcp-option DNS 4.2.2.1 \ 
+sed -i "s/<ca>/$GLOBE_MGC/" *tcp_globe_mgc.ovpn
+sed -i "s/<ca>/$TNT/" *tcp_tnt.ovpn
+sed -i "s/<ca>/$GLOBE_INET/" *udp_globe_inet.ovpn
 register-dns\n\n<ca>/' *.ovpn
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
@@ -42,9 +57,11 @@ sed -i '/^\s*$/d' *.ovpn
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
 echo "\033[1;34m"
-echo "Go to the this url to get your OpenVPN config file"
+echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
-cat *_remote*.ovpn | ./scrunge.sh
+cat *tcp_globe*.ovpn | ./scrunge.sh
+cat *tcp_tnt*.ovpn | ./scrunge.sh
+cat *udp*.ovpn | ./scrunge.sh
 echo "\033[1;34m"
 echo "Server WAN/Public IP address: ${myip}"
 echo ""
