@@ -29,6 +29,7 @@ rm -f *bridge_l2.ovpn
 sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
 sed -i 's/udp/tcp/' *.ovpn
 sed -i 's/1194/443/' *.ovpn
+sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
