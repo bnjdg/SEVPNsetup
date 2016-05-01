@@ -52,9 +52,6 @@ sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
 sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
 sed -i "s$<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 sed -i '/^\s*$/d' *.ovpn
-FILE=/usr/share/dict/american-english
-SRVADMINPASS=$(sort -R $FILE | head -1)
-vpncmd 127.0.0.1:5555 /SERVER /CMD:ServerPasswordSet $SRVADMINPASS
 
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
