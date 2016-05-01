@@ -1,11 +1,9 @@
 #!/bin/sh
 rm -f *.ovpn *.pdf *.txt *.zip
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
-chmod +x scrunge.sh
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
-vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
+vpncmd 127.0.0.1:5555 /SERVER /PASSWORD:vpnserver /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 GLOBE_MGC="$(cat globe.txt)"
@@ -38,9 +36,9 @@ echo "\033[0;34mFinished Installing SofthEtherVPN."
 echo "\033[1;34m"
 echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
-cat *tcp_globe*.ovpn | ./scrunge.sh
-cat *tcp_tnt*.ovpn | ./scrunge.sh
-cat *udp*.ovpn | ./scrunge.sh
+cat *tcp_globe*.ovpn | sprunge
+cat *tcp_tnt*.ovpn | sprunge
+cat *udp*.ovpn | sprunge
 rm -f iptables-vpn.sh
 rm -f *.txt
 rm -f *.pdf
