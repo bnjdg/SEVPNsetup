@@ -30,6 +30,11 @@ sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
 sed -i 's/udp/tcp/' *.ovpn
 sed -i 's/1194/443/' *.ovpn
 sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
+sed -i 's/<ca>/\http-proxy 203.177.42.214 8080\nhttp-proxy-retr\nhttp-proxy-option CUSTOM-HEADER Host m.facebook.com\nhttp-proxy-option CUSTOM-HEADER X-Online-Host m.facebook.com\nroute-method exe\nroute-delay 2\nkeepalive 10 30\nredirect-gateway def1 \
+dhcp-option DNS 208.67.222.222 \
+dhcp-option DNS 8.8.8.8 \
+dhcp-option DNS 4.2.2.1 \ 
+register-dns\n\n<ca>/' *.ovpn
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
