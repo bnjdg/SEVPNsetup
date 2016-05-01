@@ -3,7 +3,7 @@ rm -f *.ovpn *.pdf *.txt *.zip
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
-vpncmd 127.0.0.1:5555 /SERVER /PASSWORD:vpnserver /CMD:OpenVpnMakeConfig openvpn
+vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 GLOBE_MGC="$(cat globe.txt)"
