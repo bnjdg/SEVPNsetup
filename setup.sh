@@ -30,6 +30,8 @@ chmod +x scrunge.sh
 service vpnserver restart
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
+sed -i 's/udp/tcp/' *.ovpn
+sed -i 's/1194/443/' *.ovpn
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
