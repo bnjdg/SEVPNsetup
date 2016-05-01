@@ -11,6 +11,7 @@
 DAEMON=/usr/bin/vpnserver
 LOCK=/var/lock/subsys/vpnserver
 TAP_ADDR=172.16.0.1
+TAP_SM=255.240.0.0
 test -x $DAEMON || exit 0
 case "$1" in
 start)
@@ -18,7 +19,7 @@ $DAEMON start
 mkdir -p /var/lock/subsys
 touch $LOCK
 sleep 1
-/sbin/ifconfig tap_soft $TAP_ADDR
+/sbin/ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
 ;;
 stop)
 $DAEMON stop
@@ -29,7 +30,7 @@ $DAEMON stop
 sleep 3
 $DAEMON start
 sleep 1
-/sbin/ifconfig tap_soft $TAP_ADDR
+/sbin/ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
 ;;
 *)
 echo "Usage: $0 {start|stop|restart}"
