@@ -44,7 +44,7 @@ sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
 sed -i 's/udp/tcp/' *tcp*.ovpn
 sed -i 's/1194/443/' *tcp*.ovpn
-sed -i 's/udp/tcp/' *udp*.ovpn
+sed -i 's/tcp/udp/' *udp*.ovpn
 sed -i 's/1194/9201/' *udp*.ovpn
 sed -i 's/443/9201/' *udp*.ovpn
 sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
