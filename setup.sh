@@ -40,11 +40,16 @@ sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
 clear
+echo "Finished Installing SofthEtherVPN."
+echo ""
 echo "Go to the this url to get your OpenVPN config file"
 cat *_remote*.ovpn | ./scrunge.sh
+echo ""
 echo "Server WAN/Public IP address: ${myip}"
+echo ""
 echo "Ports for SofthEther VPN:"
 echo "SEVPN/OpenVPN TCP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484"
 echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"
+echo ""
 echo "Please use the SE-Server Manager/vpncmd to set a server password for security purposes"
 echo "you can run this vpncmd 127.0.0.1:5555 /SERVER /CMD:ServerPasswordSet to set a password"
