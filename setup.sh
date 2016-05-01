@@ -52,6 +52,9 @@ sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
 sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
 sed -i "s$<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 sed -i '/^\s*$/d' *.ovpn
+FILE=/usr/share/dict/american-english
+SRVADMINPASS=$(sort -R $FILE | head -1)
+vpncmd 127.0.0.1:5555 /SERVER /CMD:ServerPasswordSet $SRVADMINPASS
 
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
@@ -72,5 +75,5 @@ echo "Ports for SofthEther VPN:"
 echo "SEVPN/OpenVPN TCP Ports: 80,82,443,995,992,5555,5242,4244,3128,9200,9201,21,137,8484"
 echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"
 echo ""
-echo "Please use the SE-Server Manager/vpncmd to set a server password for security purposes"
-echo "\033[1;34myou can run this \033[0;35mvpncmd 127.0.0.1:5555 /SERVER /CMD:ServerPasswordSet \033[1;34mto set a password"
+echo "Your server admin password is \033[1;32m $SRVADMINPASS ."
+echo "\033[0m"
