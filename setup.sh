@@ -48,9 +48,9 @@ sed -i 's/udp/tcp/' *udp*.ovpn
 sed -i 's/1194/9201/' *udp*.ovpn
 sed -i 's/443/9201/' *udp*.ovpn
 sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
-sed -i "s/\<ca\>/$GLOBE_MGC/" *tcp_globe_mgc.ovpn
-sed -i "s/\<ca\>/$TNT/" *tcp_tnt.ovpn
-sed -i "s/\<ca\>/$GLOBE_INET/" *udp_globe_inet.ovpn
+sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
+sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
+sed -i "s$<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 sed -i '/^\s*$/d' *.ovpn
 
 clear
