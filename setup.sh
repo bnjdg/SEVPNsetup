@@ -115,6 +115,10 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 chmod +x getconfig.sh
 rm -f *.txt
 rm -f *.pdf
+echo "auto tap_soft\
+iface tap_soft inet static\
+    address 172.16.0.1\
+    netmask 255.240.0.0" >> /etc/network/interfaces
 TAP_ADDR=172.16.0.1
 TAP_SM=255.240.0.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
