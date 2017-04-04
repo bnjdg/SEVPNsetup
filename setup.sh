@@ -105,6 +105,7 @@ ifconfig tap_soft | grep 172.16.0.1
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
 echo "\033[1;34m"
+vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDNSGetStatus
 echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
 cat *tcp_globe*.ovpn | sprunge

@@ -42,6 +42,7 @@ cat *udp*.ovpn | sprunge
 rm -f iptables-vpn.sh
 rm -f *.txt
 rm -f *.pdf
+vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDNSGetStatus
 echo "\033[1;34m"
 echo "Don't forget to make a text file named account.txt to put your username"
 echo "and your password, first line username. 2nd line password."
