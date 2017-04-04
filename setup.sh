@@ -1,16 +1,36 @@
 #!/bin/sh
 # SE-VPN script
+echo "Updating system"
 apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
-apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid
+echo "Installing dependencies"
+apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid tmux
 
-service vpnserver stop
-killall vpnserver
-killall vpnbridge
-killall vpnclient
-killall vpncmd
-rm -rf SoftEtherVPN
+sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
+sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+
+wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
+
+#Kill existing vpnservers
+service vpnserver stop &>/dev/null
+killall vpnserver &>/dev/null
+killall vpnbridge &>/dev/null
+killall vpnclient &>/dev/null
+killall vpncmd &>/dev/null
+rm -rf SoftEtherVPN &>/dev/null
+rm -rf /opt/vpnserver &>/dev/null
+rm -rf /usr/vpnserver &>/dev/null
+rm -rf /opt/vpnbridge&>/dev/null
+rm -rf /usr/vpnbridge &>/dev/null
+rm -rf /opt/vpnclient &>/dev/null
+rm -rf /usr/vpnclient &>/dev/null
+rm -rf /opt/vpncmd &>/dev/null
+rm -rf /usr/vpncmd &>/dev/null
+rm -rf /usr/bin/vpnserver &>/dev/null
+rm -rf /usr/bin/vpnclient &>/dev/null
+rm -rf /usr/bin/vpncmd &>/dev/null
+rm -rf /usr/bin/vpnbrige &>/dev/null
 git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 cd SoftEtherVPN
 sed -i 's#/usr/vpnserver#/opt/vpnserver#g' src/makefiles/linux_*.mak
@@ -41,7 +61,11 @@ chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
 rm -f iptables-vpn.sh
 
-wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
+wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
+mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
+mv dnsmasq.conf /etc/dnsmasq.conf
+( echo "127.0.1.1 $(cat /etc/hostname)" | tee -a /etc/hosts ) &>/dev/null
+( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
 wget -O vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
 systemctl start vpnserver
 vpncmd 127.0.0.1:5555 /SERVER /CMD:ConfigSet vpn_server.config
@@ -51,12 +75,6 @@ WORD=$(sort -R $FILE | head -1)
 WORD2=$(sort -R $FILE | head -1)
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
 systemctl restart vpnserver
-TAP_ADDR=172.16.0.1
-TAP_SM=255.240.0.0
-ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
-systemctl restart dnsmasq
-systemctl restart squid
-systemctl restart haproxy
 rm -f vpn_server.config
 
 wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sprunge.sh
@@ -99,8 +117,10 @@ rm -f *.pdf
 TAP_ADDR=172.16.0.1
 TAP_SM=255.240.0.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
-service dnsmasq restart
 ifconfig tap_soft | grep 172.16.0.1
+systemctl restart dnsmasq
+systemctl restart squid
+systemctl restart haproxy
 
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
