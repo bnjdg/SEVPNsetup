@@ -6,12 +6,15 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid tmux
+apt-get install libreadline-dev libncurses5-dev libssl-dev
+
 systemctl restart dnsmasq
-#fallocate -l 2G /swapfile
-#chmod 600 /swapfile 
-#mkswap /swapfile 
-#swapon /swapfile 
-#echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+fallocate -l 2G /swapfile
+chmod 600 /swapfile 
+mkswap /swapfile 
+swapon /swapfile 
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+
 sudo sysctl vm.swappiness=10
 sudo sysctl vm.vfs_cache_pressure=50
 echo 1 > /proc/sys/net/ipv4/ip_forward
