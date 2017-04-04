@@ -7,6 +7,20 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-
 echo "Installing dependencies"
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid tmux
 
+#fallocate -l 2G /swapfile
+#chmod 600 /swapfile 
+#mkswap /swapfile 
+#swapon /swapfile 
+#echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+sudo sysctl vm.swappiness=10
+sudo sysctl vm.vfs_cache_pressure=50
+echo 1 > /proc/sys/net/ipv4/ip_forward
+sudo sed -i 's/#net.ipv4.ip_forward/net.ipv4.ip_forward/g' /etc/sysctl.conf
+sudo sed -i 's/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/g' /etc/sysctl.conf
+echo "vm.swappiness=10" >> /etc/sysctl.conf
+echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.conf
+sudo sysctl -p /etc/sysctl.conf
+
 sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/90-useroverrides.conf
