@@ -9,6 +9,7 @@ apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential ip
 
 sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/90-useroverrides.conf
 
 wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
 

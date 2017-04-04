@@ -183,4 +183,5 @@ iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
 iptables-save > /etc/iptables/rules.v4
 echo 1 > /proc/sys/net/ipv4/ip_forward
 sudo sed -i 's/#net.ipv4.ip_forward/net.ipv4.ip_forward/g' /etc/sysctl.conf
+sudo sed -i 's/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/g' /etc/sysctl.conf
 sudo sysctl -p /etc/sysctl.conf
