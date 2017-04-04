@@ -6,7 +6,7 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid tmux
-
+systemctl restart dnsmasq
 #fallocate -l 2G /swapfile
 #chmod 600 /swapfile 
 #mkswap /swapfile 
@@ -24,6 +24,9 @@ sudo sysctl -p /etc/sysctl.conf
 sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/90-useroverrides.conf
+
+( echo "127.0.1.1 $(cat /etc/hostname)" | tee -a /etc/hosts ) &>/dev/null
+( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
 
 wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
 
@@ -79,8 +82,6 @@ rm -f iptables-vpn.sh
 wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
 mv dnsmasq.conf /etc/dnsmasq.conf
-( echo "127.0.1.1 $(cat /etc/hostname)" | tee -a /etc/hosts ) &>/dev/null
-( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
 wget -O vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
 systemctl start vpnserver
 vpncmd 127.0.0.1:5555 /SERVER /CMD:ConfigSet vpn_server.config
