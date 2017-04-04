@@ -1,17 +1,34 @@
 #!/bin/sh
 # SE-VPN script
-apt-add-repository ppa:paskal-07/softethervpn -y
 apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
-apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential upstart-sysv iptables-persistent softether-vpncmd softether-vpnserver
+apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid
 
-service softether_vpn stop
-update-rc.d softether_vpnserver remove
-rm -f /etc/init.d/softether_vpnserver
-wget -O /etc/init.d/softether_vpnserver https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpnserver.init
-chmod +x /etc/init.d/softether_vpnserver
-update-rc.d softether_vpnserver defaults
+git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
+cd SoftEtherVPN
+sed -i 's#/usr/vpnserver#/opt/vpnserver#g' src/makefiles/linux_*.mak
+sed -i 's#/usr/vpnclient#/opt/vpnclient#g' src/makefiles/linux_*.mak
+sed -i 's#/usr/vpnbridge#/opt/vpnbridge#g' src/makefiles/linux_*.mak
+sed -i 's#/usr/vpncmd/#/opt/vpncmd/#g' src/makefiles/linux_*.mak
+sed -i 's#usr/vpncmd#opt/vpncmd#g' src/makefiles/linux_*.mak
+./configure
+make
+make install
+cp systemd/softether-vpnserver.service /etc/systemd/system/vpnserver.service
+systemctl daemon-reload
+systemctl enable vpnserver.service
+systemctl stop squid
+systemctl stop haproxy
+cd ..
+
+wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid.conf
+mv /etc/squid/squid.conf /etc/squid/squid.conf.default
+mv squid.conf /etc/squid/squid.conf
+
+wget -O haproxy.cfg https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/haproxy.cfg
+mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.default
+mv haproxy.cfg /etc/haproxy/haproxy.cfg
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/iptables-vpn.sh
 chmod +x iptables-vpn.sh
@@ -20,15 +37,23 @@ rm -f iptables-vpn.sh
 
 wget -O /etc/dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
 wget -O vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
+systemctl start vpnserver
 vpncmd 127.0.0.1:5555 /SERVER /CMD:ConfigSet vpn_server.config
-service vpnserver restart
+wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/wordlist.txt
+FILE=wordlist.txt
+WORD=$(sort -R $FILE | head -1)
+WORD2=$(sort -R $FILE | head -1)
+vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
+systemctl restart vpnserver
 TAP_ADDR=172.16.0.1
 TAP_SM=255.240.0.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
-service dnsmasq restart
+systemctl restart dnsmasq
+systemctl restart squid
+systemctl restart haproxy
 rm -f vpn_server.config
 
-wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/scrunge.sh
+wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sprunge.sh
 chmod 755 /usr/bin/sprunge
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
@@ -85,13 +110,14 @@ echo "Don't forget to make a text file named account.txt to put your username"
 echo "and your password, first line username. 2nd line password."
 echo "\033[1;34m"
 echo "Server WAN/Public IP address: ${myip}"
+echo "Server WAN/Public URL: $WORD$WORD2.softether.net
 echo ""
 echo "Username and Password pairs for the virtual hub VPN:"
 echo "\033[1;35mvpn - vpn ; vpn1 - vpn1 ; vpn2 - vpn2 ; vpn3 - vpn3; vpn4 - vpn4"
 echo "\033[1;34musername and password are the same"
 echo ""
 echo "Ports for SofthEther VPN:"
-echo "SEVPN/OpenVPN TCP Ports: 80,82,443,995,992,5555,5242,4244,3128,9200,9201,21,137,8484"
+echo "SEVPN/OpenVPN TCP Ports: 80,82,443,995,992,5555,5242,4244,3128,9200,9201,21,137,8484,8080"
 echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"
 echo ""
 echo "Please set your server password via SE-VPN Manager."

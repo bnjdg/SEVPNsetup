@@ -1,7 +1,10 @@
 #!/bin/sh
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
 iptables -X
 iptables -X -t nat
-iptables -F 
+iptables -F
 iptables -F -t nat
 
 ##############################
@@ -57,7 +60,13 @@ iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p udp -m mul
 iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
 iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -j ACCEPT
+iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 993,8080,3128 -j ACCEPT
+iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 993,8080,3128 -j ACCEPT
+iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 993,8080,3128  -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 993,8080,3128 -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+iptables -A OUTPUT -p udp -o eth0 -j ACCEPT
+iptables -A INPUT -p udp -i eth0 -j ACCEPT
 
 #minecraft
 iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 25655:25680 -j ACCEPT
@@ -72,11 +81,11 @@ iptables -A FORWARD -i eth0 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCE
 
 
 #redirect TNT ports to SoftEther VPN TCP
-iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -j REDIRECT --to-port 995
-iptables -A INPUT -i eth0 -p tcp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -j REDIRECT --to-port 995
+iptables -A INPUT -i eth0 -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 5242,4244,9200,9201,21,137,8484,82 -m state --state ESTABLISHED -j ACCEPT
 
-iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -j REDIRECT --to-port 1194
+iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -j REDIRECT --to-port 1194
 iptables -A INPUT -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
 
@@ -87,28 +96,6 @@ iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 5243,9785 -m state --sta
 iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 2000:4499,4501:8000 -j REDIRECT --to-port 1194
 iptables -A INPUT -i eth0 -p udp -m multiport --dports 2000:4499,4501:8000 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 2000:4499,4501:8000 -m state --state ESTABLISHED -j ACCEPT
-
-#allow ssh,www,https, letsencrypt
-iptables -A OUTPUT -p tcp -m multiport --dports 22,80,443,54321 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A INPUT -p tcp -m multiport --sports 22,80,443,54321 -m state --state ESTABLISHED -j ACCEPT
-iptables -A INPUT -p tcp -m multiport --dports 22,80,443,54321 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp -m multiport --sports 22,80,443,54321 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-#rsync
-iptables -A INPUT -p tcp --dport 873 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 873 -m state --state ESTABLISHED -j ACCEPT
-#mysql
-iptables -A INPUT -p tcp --dport 3306 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 3306 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -A INPUT -i tap_soft -j ACCEPT
-iptables -A OUTPUT -o tap_soft -j ACCEPT
-iptables -A FORWARD -i tap_soft -j ACCEPT
-iptables -A FORWARD -i tap_soft -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i eth0 -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
 
 iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 53 -j DNAT --to-destination 172.16.0.1:53
 iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 5353 -j DNAT --to-destination 172.16.0.1:53
@@ -121,8 +108,53 @@ iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 209.88.198.133 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.126.20 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.127.20 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 172.16.0.1 -j ACCEPT
+#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.8.8 -j ACCEPT
+#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.4.4 -j ACCEPT
+#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.220.220 -j ACCEPT
+#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.222.222 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -j DROP
+iptables -A INPUT -i tap_soft -p tcp --dport 5353 -j DROP
 
+
+#allow ssh,www,https, letsencrypt
+
+iptables -A OUTPUT -p tcp -m multiport --dports 22,80,443,54321 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp -m multiport --sports 22,80,443,54321 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp -m multiport --dports 22,80,443,54321 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp -m multiport --sports 22,80,443,54321 -m state --state ESTABLISHED -j ACCEPT
+
+iptables -A OUTPUT -p tcp -m multiport --dports 995,3128,992,5555,8080 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp -m multiport --sports 995,3128,992,5555,8080 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp -m multiport --dports 995,3128,992,5555,8080 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp -m multiport --sport 995,3128,992,5555,8080 -m state --state ESTABLISHED -j ACCEPT
+
+
+iptables -A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+#rsync
+iptables -A INPUT -p tcp --dport 873 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 873 -m state --state ESTABLISHED -j ACCEPT
+
+iptables -A INPUT -p tcp --dport 51413 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 51413 -m state --state ESTABLISHED -j ACCEPT
+
+
+#mysql
+iptables -A INPUT -p tcp --dport 3306 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 3306 -m state --state ESTABLISHED -j ACCEPT
+
+iptables -A INPUT -i tap_soft -j ACCEPT
+iptables -A OUTPUT -o tap_soft -j ACCEPT
+iptables -A FORWARD -i tap_soft -j ACCEPT
+iptables -A FORWARD -i tap_soft -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+iptables -A INPUT -i tap_dilnet -j ACCEPT
+iptables -A OUTPUT -o tap_dilnet -j ACCEPT
+iptables -A FORWARD -i tap_dilnet -j ACCEPT
+iptables -A FORWARD -i tap_dilnet -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i eth0 -o tap_dilnet -m state --state RELATED,ESTABLISHED -j ACCEPT
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
