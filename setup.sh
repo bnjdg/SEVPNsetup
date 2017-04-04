@@ -5,6 +5,12 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid
 
+service vpnserver stop
+killall vpnserver
+killall vpnbridge
+killall vpnclient
+killall vpncmd
+rm -rf SoftEtherVPN
 git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
 cd SoftEtherVPN
 sed -i 's#/usr/vpnserver#/opt/vpnserver#g' src/makefiles/linux_*.mak
