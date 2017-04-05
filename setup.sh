@@ -1,12 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 # SE-VPN script
 echo "Updating system"
 apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
-apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy squid tmux
+apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux
 apt-get install libreadline-dev libncurses5-dev libssl-dev
+DISTRO= $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
+if [[ $DISTRO  =~ Debian ]]; then apt-get install -y squid3 ; else apt-get install -y squid; fi
 
 systemctl restart dnsmasq
 fallocate -l 2G /swapfile
@@ -70,8 +72,13 @@ systemctl stop haproxy
 cd ..
 
 wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid.conf
-mv /etc/squid/squid.conf /etc/squid/squid.conf.default
-mv squid.conf /etc/squid/squid.conf
+if [[ $DISTRO  =~ Debian ]]; then 
+    mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
+    mv squid.conf /etc/squid/squid.conf;
+else 
+    mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
+    mv squid.conf /etc/squid3/squid.conf;
+fi
 
 wget -O haproxy.cfg https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/haproxy.cfg
 mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.default
@@ -85,13 +92,30 @@ rm -f iptables-vpn.sh
 wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
 mv dnsmasq.conf /etc/dnsmasq.conf
-wget -O vpn_server.config https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/vpn_server.config
 systemctl start vpnserver
-vpncmd 127.0.0.1:5555 /SERVER /CMD:ConfigSet vpn_server.config
 wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/wordlist.txt
 FILE=wordlist.txt
 WORD=$(sort -R $FILE | head -1)
 WORD2=$(sort -R $FILE | head -1)
+vpncmd 127.0.0.1:5555 /server /cmd:hubcreate VPN /password:""
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:SetEnumDeny
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserDelete vpn
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn /group:"" /realname:vpn /note:vpnuser
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn1 /group:"" /realname:vpn /note:vpnuser
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn2 /group:"" /realname:vpn /note:vpnuser
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn3 /group:"" /realname:vpn /note:vpnuser
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn4 /group:"" /realname:vpn /note:vpnuser
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn5 /group:"" /realname:vpn /note:vpnuser
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn1 /password:vpn1
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn2 /password:vpn2
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn3 /password:vpn3
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn4 /password:vpn4
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn5 /password:vpn5
+vpncmd 127.0.0.1:5555 /server /cmd:bridgecreate VPN /device:soft /tap:yes
+vpncmd 127.0.0.1:5555 /server /cmd:ListenerList
+vpncmd 127.0.0.1:5555 /server /cmd:ListenerCreate 995
+vpncmd 127.0.0.1:5555 /server /cmd:ListenerDelete 443
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
 systemctl restart vpnserver
 rm -f vpn_server.config
@@ -149,6 +173,11 @@ clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
 echo "\033[1;34m"
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDNSGetStatus
+WORD3=$(sort -R $FILE | head -1)
+WORD4=$(sort -R $FILE | head -1)
+WORD5=$(sort -R $FILE | head -1)
+SRVPASSWORD=$WORD3$WORD4$WORD5
+vpncmd 127.0.0.1:5555 /Server /cmd:setserverpassword $SRVPASSWORD
 echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
 cat *tcp_globe*.ovpn | sprunge
@@ -160,8 +189,7 @@ echo "Don't forget to make a text file named account.txt to put your username"
 echo "and your password, first line username. 2nd line password."
 echo "\033[1;34m"
 echo "Server WAN/Public IP address: ${myip}"
-echo "Server WAN/Public URL: $WORD$WORD2.softether.net
-echo ""
+echo "Your password for SEVPN server admin is: $SRVPASSWORD" | tee serverpassword.txt
 echo "Username and Password pairs for the virtual hub VPN:"
 echo "\033[1;35mvpn - vpn ; vpn1 - vpn1 ; vpn2 - vpn2 ; vpn3 - vpn3; vpn4 - vpn4"
 echo "\033[1;34musername and password are the same"
