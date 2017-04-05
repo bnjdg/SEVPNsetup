@@ -17,7 +17,11 @@ if [[ $DISTRO  =~ Debian ]]; then
     apt-get install -y squid3 ;
  else apt-get install -y squid; fi
 
+wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
+mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
+mv dnsmasq.conf /etc/dnsmasq.conf
 systemctl restart dnsmasq
+
 fallocate -l 2G /swapfile
 chmod 600 /swapfile 
 mkswap /swapfile 
@@ -97,9 +101,7 @@ chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
 
 
-wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
-mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
-mv dnsmasq.conf /etc/dnsmasq.conf
+
 systemctl start vpnserver
 wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/wordlist.txt
 FILE=wordlist.txt
@@ -126,6 +128,7 @@ vpncmd 127.0.0.1:5555 /server /cmd:ListenerCreate 995
 vpncmd 127.0.0.1:5555 /server /cmd:ListenerDelete 443
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
 systemctl restart vpnserver
+systemctl restart dnsmasq
 
 wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sprunge.sh
 chmod 755 /usr/bin/sprunge
