@@ -1,7 +1,7 @@
 # Readme
 
 A shell script to install VPN using SoftEther on Ubuntu VPS like DigitalOcean
-now requires Ubuntu 16.04 or higher
+now requires Ubuntu 16.04 or Debian Jessie or higher
 
 ## Execution
 

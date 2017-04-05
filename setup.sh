@@ -8,7 +8,12 @@ echo "Installing dependencies"
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux
 apt-get install libreadline-dev libncurses5-dev libssl-dev
 DISTRO= $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
-if [[ $DISTRO  =~ Debian ]]; then apt-get install -y squid3 ; else apt-get install -y squid; fi
+if [[ $DISTRO  =~ Debian ]]; then 
+    apt-get install -y squid3 ;
+    echo deb http://httpredir.debian.org/debian jessie-backports main |  sed 's/\(.*-backports\) \(.*\)/&@\1-sloppy \2/' | tr @ '\n' | tee /etc/apt/sources.list.d/backports.list;
+    curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -;
+    echo deb http://haproxy.debian.net jessie-backports-1.6 main | tee /etc/apt/sources.list.d/haproxy.list;
+ else apt-get install -y squid; fi
 
 systemctl restart dnsmasq
 fallocate -l 2G /swapfile
