@@ -20,7 +20,13 @@ if [[ $DISTRO  =~ Debian ]]; then
 wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
 mv dnsmasq.conf /etc/dnsmasq.conf
-systemctl restart dnsmasq
+systemctl stop dnsmasq
+
+HOSTG=$(cat /etc/hosts | grep metadata.google.internal)
+if [[ $HOSTG =~ metadata.google.internal ]]; then
+    echo "server=169.254.169.254" >> /etc/dnsmasq.conf;
+    sed -i 's/nameserver 127.0.0.1/nameserver 169.254.169.254/g' /etc/resolv.conf;
+fi
 
 fallocate -l 2G /swapfile
 chmod 600 /swapfile 
