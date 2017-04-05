@@ -18,6 +18,11 @@ if [[ $DISTRO  =~ Debian ]]; then
     apt-get install -y dnsutils;
  else apt-get install -y squid; fi
 
+wget -O bash.bashrc https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/bash.bashrc
+mv /etc/bash.bashrc /etc/bash.bashrc.default
+mv bash.bashrc /etc/bash.bashrc
+rm /home/*/.bashrc
+
 wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
 mv dnsmasq.conf /etc/dnsmasq.conf
