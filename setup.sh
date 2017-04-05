@@ -112,7 +112,16 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
 
-
+curl https://getcaddy.com | bash
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/Caddyfile
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/index.html
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/caddy.service
+mkdir -p /etc/caddy
+mkdir -p /srv/www
+mv Caddyfile /etc/caddy/
+mv index.html /srv/www/
+mv caddy.service /etc/systemd/system/
+systemctl start caddy
 
 systemctl start vpnserver
 wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/wordlist.txt

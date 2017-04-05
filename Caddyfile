@@ -1,0 +1,3 @@
+listen :8081 {
+  root /srv/www
+}
