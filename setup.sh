@@ -7,7 +7,7 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-
 echo "Installing dependencies"
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux
 apt-get install -y libreadline-dev libncurses5-dev libssl-dev
-DISTRO= $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
+DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
 if [[ $DISTRO  =~ Debian ]]; then 
     echo deb http://httpredir.debian.org/debian jessie-backports main |  sed 's/\(.*-backports\) \(.*\)/&@\1-sloppy \2/' | tr @ '\n' | tee /etc/apt/sources.list.d/backports.list;
     curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -;
