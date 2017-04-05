@@ -75,6 +75,7 @@ wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117
 if [[ $DISTRO  =~ Debian ]]; then 
     mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
     mv squid.conf /etc/squid/squid.conf;
+    ln -s /usr/bin/squid3 /usr/bin/squid
 else 
     mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
     mv squid.conf /etc/squid3/squid.conf;
@@ -166,7 +167,7 @@ TAP_SM=255.240.0.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
 ifconfig tap_soft | grep 172.16.0.1
 systemctl restart dnsmasq
-systemctl restart squid
+squid -k reconfigure
 systemctl restart haproxy
 
 clear
