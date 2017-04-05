@@ -194,16 +194,17 @@ SRVPASSWORD=$WORD3$WORD4$WORD5
 vpncmd 127.0.0.1:5555 /Server /cmd:serverpasswordset $SRVPASSWORD
 echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
-cat *tcp_globe*.ovpn | sprunge
-cat *tcp_tnt*.ovpn | sprunge
-cat *udp*.ovpn | sprunge
+cat *tcp_globe*.ovpn | sprunge | tee -a SEVPNsetup.txt 
+cat *tcp_tnt*.ovpn | sprunge | tee -a SEVPNsetup.txt
+cat *udp*.ovpn | sprunge | tee -a SEVPNsetup.txt
 rm -f *.ovpn
 echo "\033[1;34m"
 echo "Don't forget to make a text file named account.txt to put your username"
 echo "and your password, first line username. 2nd line password."
 echo "\033[1;34m"
-echo "Server WAN/Public IP address: ${myip}"
-echo "Your password for SEVPN server admin is: $SRVPASSWORD" | tee serverpassword.txt
+echo "Server WAN/Public IP address: ${myip}" | tee -a SEVPNsetup.txt
+echo "Your password for SEVPN server admin is: $SRVPASSWORD" | tee -a SEVPNsetup.txt
+echo ""
 echo "Username and Password pairs for the virtual hub VPN:"
 echo "\033[1;35mvpn - vpn ; vpn1 - vpn1 ; vpn2 - vpn2 ; vpn3 - vpn3; vpn4 - vpn4"
 echo "\033[1;34musername and password are the same"
@@ -212,7 +213,6 @@ echo "Ports for SofthEther VPN:"
 echo "SEVPN/OpenVPN TCP Ports: 80,82,443,995,992,5555,5242,4244,3128,9200,9201,21,137,8484,8080"
 echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"
 echo ""
-echo "Please set your server password via SE-VPN Manager."
 echo "\033[0m"
 rm -f vpn_server.config
 rm -f *.txt
