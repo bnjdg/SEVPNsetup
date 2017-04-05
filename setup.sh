@@ -196,7 +196,7 @@ systemctl restart haproxy
 clear
 echo "\033[0;34mFinished Installing SofthEtherVPN."
 echo "\033[1;34m"
-vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDNSGetStatus
+vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDNSGetStatus | tee -a SEVPN.setup
 WORD3=$(sort -R $FILE | head -1)
 WORD4=$(sort -R $FILE | head -1)
 WORD5=$(sort -R $FILE | head -1)
@@ -204,18 +204,18 @@ SRVPASSWORD=$WORD3$WORD4$WORD5
 vpncmd 127.0.0.1:5555 /Server /cmd:serverpasswordset $SRVPASSWORD
 echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
-echo Globe-mgc: $( cat *tcp_globe*.ovpn | sprunge | tee -a SEVPNsetup.txt )
-echo TCP_TNT: $(cat *tcp_tnt*.ovpn | sprunge ) | tee -a SEVPNsetup.txt 
-echo UDP_GLOBE: $( cat *udp*.ovpn | sprunge ) | tee -a SEVPNsetup.txt 
-echo TCP_HPI: $(cat *tcp_hpi*.ovpn | sprunge ) | tee -a SEVPNsetup.txt 
-echo TCP_INJECTOR: $(cat *tcp_injector*.ovpn | sprunge )  | tee -a SEVPNsetup.txt 
+echo Globe-mgc: $( cat *tcp_globe*.ovpn | sprunge ) | tee -a SEVPN.setup
+echo TCP_TNT: $(cat *tcp_tnt*.ovpn | sprunge ) | tee -a SEVPN.setup
+echo UDP_GLOBE: $( cat *udp*.ovpn | sprunge ) | tee -a SEVPN.setup
+echo TCP_HPI: $(cat *tcp_hpi*.ovpn | sprunge ) | tee -a SEVPN.setup
+echo TCP_INJECTOR: $(cat *tcp_injector*.ovpn | sprunge )  | tee -a SEVPN.setup
 rm -f *.ovpn
 echo "\033[1;34m"
 echo "Don't forget to make a text file named account.txt to put your username"
 echo "and your password, first line username. 2nd line password."
 echo "\033[1;34m"
-echo "Server WAN/Public IP address: ${myip}" | tee -a SEVPNsetup.txt
-echo "Your password for SEVPN server admin is: $SRVPASSWORD" | tee -a SEVPNsetup.txt
+echo "Server WAN/Public IP address: ${myip}" | tee -a SEVPN.setup
+echo "Your password for SEVPN server admin is: $SRVPASSWORD" | tee -a SEVPN.setup
 echo ""
 echo "Username and Password pairs for the virtual hub VPN:"
 echo "\033[1;35mvpn - vpn ; vpn1 - vpn1 ; vpn2 - vpn2 ; vpn3 - vpn3; vpn4 - vpn4"

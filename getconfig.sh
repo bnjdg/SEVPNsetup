@@ -48,11 +48,11 @@ echo "\033[1;34m"
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDNSGetStatus
 echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
-echo Globe-mgc: $( cat *tcp_globe*.ovpn | sprunge | tee -a SEVPNsetup.txt )
-echo TCP_TNT: $(cat *tcp_tnt*.ovpn | sprunge ) | tee -a SEVPNsetup.txt 
-echo UDP_GLOBE: $( cat *udp*.ovpn | sprunge ) | tee -a SEVPNsetup.txt 
-echo TCP_HPI: $(cat *tcp_hpi*.ovpn | sprunge ) | tee -a SEVPNsetup.txt 
-echo TCP_INJECTOR: $(cat *tcp_injector*.ovpn | sprunge )  | tee -a SEVPNsetup.txt 
+echo Globe-mgc: $( cat *tcp_globe*.ovpn | sprunge )
+echo TCP_TNT: $(cat *tcp_tnt*.ovpn | sprunge ) 
+echo UDP_GLOBE: $( cat *udp*.ovpn | sprunge ) 
+echo TCP_HPI: $(cat *tcp_hpi*.ovpn | sprunge ) 
+echo TCP_INJECTOR: $(cat *tcp_injector*.ovpn | sprunge )
 rm -f *.ovpn
 echo "\033[1;34m"
 echo "Don't forget to make a text file named account.txt to put your username"
