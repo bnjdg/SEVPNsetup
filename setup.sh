@@ -119,6 +119,7 @@ wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f78341
 FILE=wordlist.txt
 WORD=$(sort -R $FILE | head -1)
 WORD2=$(sort -R $FILE | head -1)
+vpncmd 127.0.0.1:5555 /server /cmd:hubdelete DEFAULT
 vpncmd 127.0.0.1:5555 /server /cmd:hubcreate VPN /password:""
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:SetEnumDeny
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn
