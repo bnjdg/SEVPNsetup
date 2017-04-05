@@ -1,0 +1,1 @@
+\n\nhttp-proxy 127.0.0.1 8989\nroute-delay 2\nkeepalive 10 30\nredirect-gateway def1\ndhcp-option DNS 172.16.0.1\nregister-dns\n\n<ca>
