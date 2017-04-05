@@ -95,7 +95,7 @@ mv haproxy.cfg /etc/haproxy/haproxy.cfg
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/iptables-vpn.sh
 chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
-rm -f iptables-vpn.sh
+
 
 wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
@@ -126,7 +126,6 @@ vpncmd 127.0.0.1:5555 /server /cmd:ListenerCreate 995
 vpncmd 127.0.0.1:5555 /server /cmd:ListenerDelete 443
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
 systemctl restart vpnserver
-rm -f vpn_server.config
 
 wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sprunge.sh
 chmod 755 /usr/bin/sprunge
@@ -163,8 +162,6 @@ sed -i "s#<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/getconfig.sh
 chmod +x getconfig.sh
-rm -f *.txt
-rm -f *.pdf
 echo "auto tap_soft\
 iface tap_soft inet static\
     address 172.16.0.1\
@@ -208,4 +205,8 @@ echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,97
 echo ""
 echo "Please set your server password via SE-VPN Manager."
 echo "\033[0m"
+rm -f vpn_server.config
+rm -f *.txt
+rm -f iptables-vpn.sh
+rm -f *.pdf
 ifconfig tap_soft | grep 172.16.0.1
