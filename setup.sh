@@ -6,7 +6,7 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux
-apt-get install libreadline-dev libncurses5-dev libssl-dev
+apt-get install -y libreadline-dev libncurses5-dev libssl-dev
 DISTRO= $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
 if [[ $DISTRO  =~ Debian ]]; then 
     apt-get install -y squid3 ;
