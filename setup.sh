@@ -14,7 +14,8 @@ if [[ $DISTRO  =~ Debian ]]; then
     echo deb http://haproxy.debian.net jessie-backports-1.6 main | tee /etc/apt/sources.list.d/haproxy.list;
     apt-get update;
     apt-get install haproxy -t jessie-backports;
-    apt-get install -y squid3 ;
+    apt-get install -y squid3;
+    apt-get install -y dnsutils;
  else apt-get install -y squid; fi
 
 wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
