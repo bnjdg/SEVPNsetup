@@ -201,6 +201,7 @@ WORD3=$(sort -R $FILE | head -1)
 WORD4=$(sort -R $FILE | head -1)
 WORD5=$(sort -R $FILE | head -1)
 SRVPASSWORD=$WORD3$WORD4$WORD5
+touch SEVPN.setup
 vpncmd 127.0.0.1:5555 /Server /cmd:serverpasswordset $SRVPASSWORD
 echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
