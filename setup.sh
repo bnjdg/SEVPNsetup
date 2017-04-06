@@ -16,7 +16,13 @@ if [[ $DISTRO  =~ Debian ]]; then
     apt-get install -y haproxy -t jessie-backports;
     apt-get install -y squid3;
     apt-get install -y dnsutils;
- else apt-get install -y squid; fi
+ else 
+    apt-get install -y software-properties-common
+    add-apt-repository -y ppa:vbernat/haproxy-1.6
+    apt-get update
+    apt-get install -y squid haproxy; 
+    
+ fi
 
 wget -O bash.bashrc https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/bash.bashrc
 mv /etc/bash.bashrc /etc/bash.bashrc.default
