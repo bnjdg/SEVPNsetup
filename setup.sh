@@ -137,7 +137,6 @@ WORD2=$(sort -R $FILE | head -1)
 vpncmd 127.0.0.1:5555 /server /cmd:hubdelete DEFAULT
 vpncmd 127.0.0.1:5555 /server /cmd:hubcreate VPN /password:""
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:SetEnumDeny
-vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserDelete vpn
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn /group:"" /realname:vpn /note:vpnuser
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn1 /group:"" /realname:vpn /note:vpnuser
