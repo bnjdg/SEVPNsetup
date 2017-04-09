@@ -243,9 +243,19 @@ echo "Username and Password pairs for the virtual hub VPN:"
 echo "\033[1;35mvpn - vpn ; vpn1 - vpn1 ; vpn2 - vpn2 ; vpn3 - vpn3; vpn4 - vpn4"
 echo "\033[1;34musername and password are the same"
 echo ""
-echo "Ports for SofthEther VPN:"
-echo "SEVPN/OpenVPN TCP Ports: 80,82,443,995,992,5555,5242,4244,3128,9200,9201,21,137,8484,8080"
-echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"
+echo "Ports:"| tee -a SEVPN.setup
+echo "Shared TCP Ports (SEVPN,Squid,SSH): 80,443,8080"| tee -a SEVPN.setup
+echo "Squid TCP Port: 3128"| tee -a SEVPN.setup
+echo "SSH TCP Port: 22"| tee -a SEVPN.setup
+echo "SEVPN/OpenVPN TCP Ports: 82,995,992,5555,5242,4244,9200,9201,21,137,8484"| tee -a SEVPN.setup
+echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"| tee -a SEVPN.setup
+echo "HTTP Proxy Injector (PC) : https://sites.google.com/site/httpproxyinjector/download\
+HTTP Injector (Android): https://play.google.com/store/apps/details?id=com.evozi.injector&hl=en\
+TalkNText Working payload under TP10 (to 3545) and T2 (send to 4545 3x  for 3days ): \
+HTTP Proxy Injector PC\
+CONNECT [host_port] [protocol][crlf] POST http://mobile.twitter.com/ HTTP/1.1[crlf]Host: mobile.twitter.com[crlf]X-Online-Host: mobile.twitter.com[crlf]X-Forward-Host: mobile.twitter.com[crlf]X-Forwarded-For: mobile.twitter.com[crlf]Connection: Keep-Alive[crlf]CONNECT [host_port] [protocol][crlf][crlf]\
+HTTP Injector Android\
+CONNECT [host_port] [protocol][crlf] [delay_split] POST http://mobile.twitter.com/ HTTP/1.1[crlf]Host: mobile.twitter.com[crlf]X-Online-Host: mobile.twitter.com[crlf]X-Forward-Host: mobile.twitter.com[crlf]X-Forwarded-For: mobile.twitter.com[crlf]Connection: Keep-Alive[crlf]CONNECT [host_port] [protocol][crlf][crlf]"| tee -a SEVPN.setup
 echo ""
 echo "\033[0m"
 rm -f vpn_server.config
