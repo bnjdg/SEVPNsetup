@@ -63,6 +63,8 @@ echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/90-useroverrides.conf
 ( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
 
 wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
+cp tmux.conf /home/*/.tmux.conf
+cp tmux.conf /root/tmux.conf
 
 #Kill existing vpnservers
 service vpnserver stop &>/dev/null
@@ -101,12 +103,14 @@ systemctl stop haproxy
 cd ..
 
 wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid.conf
+IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+sed -i "s/123.123.123.123/$IP/g" squid.conf
 if [[ $DISTRO  =~ Debian ]]; then 
-    mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
+    mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
     mv squid.conf /etc/squid/squid.conf;
     ln -s /usr/bin/squid3 /usr/bin/squid
 else 
-    mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
+    mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
     mv squid.conf /etc/squid3/squid.conf;
 fi
 
@@ -118,16 +122,16 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
 
-curl https://getcaddy.com | bash
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/Caddyfile
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/index.html
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/caddy.service
-mkdir -p /etc/caddy
-mkdir -p /srv/www
-mv Caddyfile /etc/caddy/
-mv index.html /srv/www/
-mv caddy.service /etc/systemd/system/
-systemctl start caddy
+#curl https://getcaddy.com | bash
+#wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/Caddyfile
+#wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/index.html
+#wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/caddy.service
+#mkdir -p /etc/caddy
+#mkdir -p /srv/www
+#mv Caddyfile /etc/caddy/
+#mv index.html /srv/www/
+#mv caddy.service /etc/systemd/system/
+#systemctl start caddy
 
 systemctl start vpnserver
 wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/wordlist.txt
