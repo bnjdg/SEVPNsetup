@@ -10,8 +10,7 @@ Some parts adapted to Google Cloud Engine VMs
 * Execution for installation and setup
 
 ```shell
-sudo su
-wget -O - bit.ly/sevpnsetup | sh
+wget -O - bit.ly/sevpnsetup | sudo bash
 ```
 
 This script fetches the SoftEtherVPN Server Source Code from github
