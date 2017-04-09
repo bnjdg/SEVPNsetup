@@ -148,11 +148,11 @@ vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn2 /group:"" /realname:
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn3 /group:"" /realname:vpn /note:vpnuser
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn4 /group:"" /realname:vpn /note:vpnuser
 vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserCreate vpn5 /group:"" /realname:vpn /note:vpnuser
-vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn1 /password:vpn1
-vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn2 /password:vpn2
-vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn3 /password:vpn3
-vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn4 /password:vpn4
-vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn5 /password:vpn5
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn1 /password:"vpn1"
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn2 /password:"vpn2"
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn3 /password:"vpn3"
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn4 /password:"vpn4"
+vpncmd 127.0.0.1:5555 /server /hub:VPN /cmd:UserPasswordset vpn5 /password:"vpn5"
 vpncmd 127.0.0.1:5555 /server /cmd:bridgecreate VPN /device:soft /tap:yes
 vpncmd 127.0.0.1:5555 /server /cmd:ListenerList
 vpncmd 127.0.0.1:5555 /server /cmd:ListenerCreate 995
