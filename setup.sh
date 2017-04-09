@@ -206,10 +206,11 @@ sed -i "s#<ca>#$HPI#" *tcp_hpi.ovpn
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/getconfig.sh
 chmod +x getconfig.sh
-echo "auto tap_soft\
-iface tap_soft inet static\
-    address 172.16.0.1\
-    netmask 255.240.0.0" >> /etc/network/interfaces
+
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tap_soft.interface
+echo "" >> /etc/network/interfaces
+cat tap_soft.interface >> /etc/network/interfaces
+
 TAP_ADDR=172.16.0.1
 TAP_SM=255.240.0.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
