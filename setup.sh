@@ -110,11 +110,11 @@ IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 sed -i "s/123.123.123.123/$IP/g" squid.conf
 if [[ $DISTRO  =~ Debian ]]; then 
     mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
-    mv squid.conf /etc/squid/squid.conf;
+    mv squid.conf /etc/squid3/squid.conf;
     ln -s /usr/bin/squid3 /usr/bin/squid
 else 
     mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
-    mv squid.conf /etc/squid3/squid.conf;
+    mv squid.conf /etc/squid/squid.conf;
 fi
 
 wget -O haproxy.cfg https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/haproxy.cfg
