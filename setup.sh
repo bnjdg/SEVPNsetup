@@ -263,8 +263,9 @@ HTTP Injector Android\
 CONNECT [host_port] [protocol][crlf] [delay_split] POST http://mobile.twitter.com/ HTTP/1.1[crlf]Host: mobile.twitter.com[crlf]X-Online-Host: mobile.twitter.com[crlf]X-Forward-Host: mobile.twitter.com[crlf]X-Forwarded-For: mobile.twitter.com[crlf]Connection: Keep-Alive[crlf]CONNECT [host_port] [protocol][crlf][crlf]"| tee -a SEVPN.setup
 echo ""
 echo "\033[0m"
+echo "Your configuration details available at: $(cat SEVPN.setup | sprunge )"
+ifconfig tap_soft | grep 172.16.0.1
 rm -f vpn_server.config
 rm -f *.txt
 rm -f iptables-vpn.sh
 rm -f *.pdf
-ifconfig tap_soft | grep 172.16.0.1
