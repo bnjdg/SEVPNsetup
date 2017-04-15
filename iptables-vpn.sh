@@ -110,10 +110,10 @@ iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 209.88.198.133 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.126.20 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.127.20 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 172.16.0.1 -j ACCEPT
-#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.8.8 -j ACCEPT
-#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.4.4 -j ACCEPT
-#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.220.220 -j ACCEPT
-#iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.222.222 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.8.8 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.4.4 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.220.220 -j ACCEPT
+iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.222.222 -j ACCEPT
 iptables -A INPUT -i tap_soft -p tcp --dport 53 -j DROP
 iptables -A INPUT -i tap_soft -p tcp --dport 5353 -j DROP
 
