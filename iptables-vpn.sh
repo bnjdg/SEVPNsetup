@@ -1,4 +1,5 @@
 #!/bin/sh
+DEF_IF=$(route | grep '^default' | grep -o '[^ ]*$')
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
 iptables -P FORWARD ACCEPT
@@ -56,83 +57,47 @@ iptables -A port-scan -p tcp --tcp-flags SYN,ACK,FIN,RST RST -m limit --limit 1/
 iptables -A port-scan -j DROP
 
 
-iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
-iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
-iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 993,8080,3128 -j ACCEPT
-iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 993,8080,3128 -j ACCEPT
-iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 993,8080,3128  -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 993,8080,3128 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
+iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 993,8080,3128 -j ACCEPT
+iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 993,8080,3128 -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 993,8080,3128  -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 993,8080,3128 -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-iptables -A OUTPUT -p udp -o eth0 -j ACCEPT
-iptables -A INPUT -p udp -i eth0 -j ACCEPT
-
-#minecraft
-iptables -A INPUT -i eth0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 25655:25680 -j ACCEPT
-iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 25655:25680 -m state --state RELATED,ESTABLISHED -j ACCEPT
-
-iptables -A INPUT -i ens0 -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
-iptables -A INPUT -i ens0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
-iptables -A OUTPUT -o ens0 -p tcp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o ens0 -p udp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A INPUT -i ens0 -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 993,8080,3128 -j ACCEPT
-iptables -A INPUT -i ens0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 993,8080,3128 -j ACCEPT
-iptables -A OUTPUT -o ens0 -p tcp -m multiport --sports 993,8080,3128  -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o ens0 -p udp -m multiport --sports 993,8080,3128 -m state --state RELATED,ESTABLISHED -j ACCEPT
-
-iptables -A OUTPUT -p udp -o ens0 -j ACCEPT
-iptables -A INPUT -p udp -i ens0 -j ACCEPT
+iptables -A OUTPUT -p udp -o $DEF_IF -j ACCEPT
+iptables -A INPUT -p udp -i $DEF_IF -j ACCEPT
 
 #minecraft
-iptables -A INPUT -i ens0 -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 25655:25680 -j ACCEPT
-iptables -A OUTPUT -o ens0 -p tcp -m multiport --sports 25655:25680 -m state --state RELATED,ESTABLISHED -j ACCEPT
-
+iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 25655:25680 -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 25655:25680 -m state --state RELATED,ESTABLISHED -j ACCEPT
 
 #allow tun+
 iptables -A INPUT -i tun+ -j ACCEPT
 iptables -A OUTPUT -o tun+ -j ACCEPT
 iptables -A FORWARD -i tun+ -j ACCEPT
-iptables -A FORWARD -i tun+ -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i eth0 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i tun+ -o $DEF_IF -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i $DEF_IF -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i tun+ -o ens0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i ens0 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-
-
 #redirect TNT ports to SoftEther VPN TCP
-iptables -t nat -A PREROUTING -i eth0 -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -j REDIRECT --to-port 995
-iptables -A INPUT -i eth0 -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p tcp -m multiport --sports 5242,4244,9200,9201,21,137,8484,82 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i $DEF_IF -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -j REDIRECT --to-port 995
+iptables -A INPUT -i $DEF_IF -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 5242,4244,9200,9201,21,137,8484,82 -m state --state ESTABLISHED -j ACCEPT
 
-iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -j REDIRECT --to-port 1194
-iptables -A INPUT -i eth0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -j REDIRECT --to-port 1194
+iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
 
-iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 5243,9785 -j REDIRECT --to-port 1194
-iptables -A INPUT -i eth0 -p udp -m multiport --dports 5243,9785 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 5243,9785 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 5243,9785 -j REDIRECT --to-port 1194
+iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 5243,9785 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 5243,9785 -m state --state ESTABLISHED -j ACCEPT
 
-iptables -t nat -A PREROUTING -i eth0 -p udp -m multiport --dports 2000:4499,4501:8000 -j REDIRECT --to-port 1194
-iptables -A INPUT -i eth0 -p udp -m multiport --dports 2000:4499,4501:8000 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p udp -m multiport --sports 2000:4499,4501:8000 -m state --state ESTABLISHED -j ACCEPT
-
-#redirect TNT ports to SoftEther VPN TCP
-iptables -t nat -A PREROUTING -i ens0 -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -j REDIRECT --to-port 995
-iptables -A INPUT -i ens0 -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o ens0 -p tcp -m multiport --sports 5242,4244,9200,9201,21,137,8484,82 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i ens0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -j REDIRECT --to-port 1194
-iptables -A INPUT -i ens0 -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o ens0 -p udp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i ens0 -p udp -m multiport --dports 5243,9785 -j REDIRECT --to-port 1194
-iptables -A INPUT -i ens0 -p udp -m multiport --dports 5243,9785 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o ens0 -p udp -m multiport --sports 5243,9785 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i ens0 -p udp -m multiport --dports 2000:4499,4501:8000 -j REDIRECT --to-port 1194
-iptables -A INPUT -i ens0 -p udp -m multiport --dports 2000:4499,4501:8000 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o ens0 -p udp -m multiport --sports 2000:4499,4501:8000 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 2000:4499,4501:8000 -j REDIRECT --to-port 1194
+iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 2000:4499,4501:8000 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 2000:4499,4501:8000 -m state --state ESTABLISHED -j ACCEPT
 
 iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 53 -j DNAT --to-destination 172.16.0.1:53
 iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 5353 -j DNAT --to-destination 172.16.0.1:53
@@ -165,7 +130,6 @@ iptables -A INPUT -p tcp -m multiport --sports 995,3128,992,5555,8080 -m state -
 iptables -A INPUT -p tcp -m multiport --dports 995,3128,992,5555,8080 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -p tcp -m multiport --sport 995,3128,992,5555,8080 -m state --state ESTABLISHED -j ACCEPT
 
-
 iptables -A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
 
@@ -182,11 +146,10 @@ iptables -A OUTPUT -p tcp --sport 3306 -m state --state ESTABLISHED -j ACCEPT
 iptables -A INPUT -i tap_soft -j ACCEPT
 iptables -A OUTPUT -o tap_soft -j ACCEPT
 iptables -A FORWARD -i tap_soft -j ACCEPT
-iptables -A FORWARD -i tap_soft -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i eth0 -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i tap_soft -o $DEF_IF -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i $DEF_IF -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i tap_soft -o ens0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i ens0 -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
-
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
@@ -194,6 +157,11 @@ iptables -A OUTPUT -p udp -m multiport --dports 53,67,68 -j ACCEPT
 iptables -A INPUT -p udp -m multiport --sports 53,67,68 -j ACCEPT
 iptables -A OUTPUT -p tcp -m multiport --dports 53,67,68 -j ACCEPT
 iptables -A INPUT -p tcp -m multiport --sports 53,67,68 -j ACCEPT
+
+iptables -A OUTPUT -p udp -m multiport --dports 60000:61000 -j ACCEPT
+iptables -A INPUT -p udp -m multiport --sports 60000:61000 -j ACCEPT
+iptables -A OUTPUT -p tcp -m multiport --dports 60000:61000 -j ACCEPT
+iptables -A INPUT -p tcp -m multiport --sports 60000:61000 -j ACCEPT
 
 #nat
 iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -j MASQUERADE
