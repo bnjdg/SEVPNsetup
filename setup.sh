@@ -6,7 +6,7 @@ echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
-apt-get install -y libreadline-dev libncurses5-dev libssl-dev
+apt-get install -y libreadline-dev libncurses5-dev libssl-dev libevent-dev
 DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
 if [[ $DISTRO  =~ Debian ]]; then 
     echo deb http://httpredir.debian.org/debian jessie-backports main |  sed 's/\(.*-backports\) \(.*\)/&@\1-sloppy \2/' | tr @ '\n' | tee /etc/apt/sources.list.d/backports.list;
@@ -62,9 +62,18 @@ echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/90-useroverrides.conf
 ( echo "127.0.1.1 $(cat /etc/hostname)" | tee -a /etc/hosts ) &>/dev/null
 ( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
 
+wget https://github.com/tmux/tmux/releases/download/2.1/tmux-2.1.tar.gz
+tar xvzf tmux-2.1.tar.gz
+cd tmux-2.1
+./configure
+make && make install
+cd
+
 wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
 cp tmux.conf /home/*/.tmux.conf
-cp tmux.conf /root/tmux.conf
+cp tmux.conf /root/.tmux.conf
+rm tmux.conf
+
 
 #Kill existing vpnservers
 service vpnserver stop &>/dev/null
