@@ -172,7 +172,6 @@ vpncmd 127.0.0.1:5555 /server /cmd:ListenerCreate 995
 vpncmd 127.0.0.1:5555 /server /cmd:ListenerDelete 443
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
 systemctl restart vpnserver
-systemctl restart dnsmasq
 
 wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sprunge.sh
 chmod 755 /usr/bin/sprunge
@@ -228,7 +227,9 @@ TAP_ADDR=172.16.0.1
 TAP_SM=255.240.0.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
 ifconfig tap_soft | grep 172.16.0.1
-systemctl restart dnsmasq
+systemctl stop dnsmasq
+killall dnsmasq || (ps axu | grep dnsmasq | awk '{print $2}' | xargs kill)
+systemctl start dnsmasq
 squid -k reconfigure
 systemctl restart haproxy
 
