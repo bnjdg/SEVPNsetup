@@ -180,6 +180,8 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/hpi.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/injector.txt
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/cust_gtm.txt
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/cust_tnt.txt
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
@@ -188,18 +190,24 @@ TNT="$(cat tnt.txt)"
 GLOBE_INET="$(cat udp.txt)"
 INJ="$(cat injector.txt)"
 HPI="$(cat hpi.txt)"
+CGTM="$(cat cust_gtm.txt)"
+CTNT="$(cat cust_tnt.txt)
 REMOTE="$(ls *remote*.ovpn)"
 SRVHOSTNAMEGLOBE="$(hostname)_tcp_globe_mgc.ovpn"
 SRVHOSTNAMETNT="$(hostname)_tcp_tnt.ovpn"
 SRVHOSTNAMEUDP="$(hostname)_udp_globe_inet.ovpn"
 SRVHOSTNAMEHPI="$(hostname)_tcp_hpi.ovpn"
 SRVHOSTNAMEINJ="$(hostname)_tcp_injector.ovpn"
+SRVHOSTNAMECTNT="$(hostname)_tcp_cust_tnt.ovpn"
+SRVHOSTNAMECGTM="$(hostname)_tcp_cust_gtm.ovpn"
 rm -f *bridge_l2.ovpn
 cp $REMOTE $SRVHOSTNAMEGLOBE
 cp $REMOTE $SRVHOSTNAMETNT
 cp $REMOTE $SRVHOSTNAMEUDP
 cp $REMOTE $SRVHOSTNAMEHPI
 cp $REMOTE $SRVHOSTNAMEINJ
+cp $REMOTE $SRVHOSTNAMECTNT
+cp $REMOTE $SRVHOSTNAMECTNT
 sed -i '/^\s*[@#]/ d' *.ovpn
 sed -i '/^\s*[@;]/ d' *.ovpn
 sed -i "s/\(vpn[0-9]*\).v4.softether.net/$myip/" *.ovpn
@@ -215,6 +223,13 @@ sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
 sed -i "s#<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 sed -i "s#<ca>#$INJ#" *tcp_injector.ovpn
 sed -i "s#<ca>#$HPI#" *tcp_hpi.ovpn
+sed -i "s#<ca>#$CGTM#" *tcp_cust_gtm.ovpn
+sed -i "s#<ca>#$CTNT#" *tcp_cust_tnt.ovpn
+IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+sed -i "s#123.123.123.123#$IP#g" *tcp_cust_gtm.ovpn
+sed -i "s#123.123.123.123#$IP#g" *tcp_cust_tnt.ovpn
+sed -i "s/remote \(*\).softether.net/remote 127.0.0.1/" *tcp_cust_*.ovpn
+sed -i "s/remote \(*\) 443/remote 127.0.0.1 443/" *tcp_cust_*.ovpn
 
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/getconfig.sh
 chmod +x getconfig.sh
@@ -250,6 +265,8 @@ echo TCP_TNT: $(cat *tcp_tnt*.ovpn | sprunge ) | tee -a SEVPN.setup
 echo UDP_GLOBE: $( cat *udp*.ovpn | sprunge ) | tee -a SEVPN.setup
 echo TCP_HPI: $(cat *tcp_hpi*.ovpn | sprunge ) | tee -a SEVPN.setup
 echo TCP_INJECTOR: $(cat *tcp_injector*.ovpn | sprunge )  | tee -a SEVPN.setup
+echo TCP_CUST_GTM: $(cat *tcp_cust_gtm*.ovpn | sprunge )  | tee -a SEVPN.setup
+echo TCP_CUST_TNT: $(cat *tcp_cust_tnt*.ovpn | sprunge )  | tee -a SEVPN.setup
 rm -f *.ovpn
 echo "\033[1;34m"
 echo "Don't forget to make a text file named account.txt to put your username"
