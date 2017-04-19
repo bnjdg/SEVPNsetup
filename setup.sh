@@ -5,7 +5,9 @@ apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
+cat /etc/resolv.conf > /etc/resolv.conf.default
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
+cat /etc/resolv.conf.default > /etc/resolv.conf
 apt-get install -y libreadline-dev libncurses5-dev libssl-dev libevent-dev
 DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
 if [[ $DISTRO  =~ Debian ]]; then 
@@ -33,6 +35,7 @@ wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f78341
 mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
 mv dnsmasq.conf /etc/dnsmasq.conf
 systemctl stop dnsmasq
+cat /etc/resolv.conf.default > /etc/resolv.conf
 
 HOSTG=$(cat /etc/hosts | grep metadata.google.internal)
 if [[ $HOSTG =~ metadata.google.internal ]]; then
