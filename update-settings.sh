@@ -53,3 +53,9 @@ sh iptables-vpn.sh
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/getconfig.sh
 chmod +x getconfig.sh
 
+mkdir -p /opt/shadowsocks
+wget https://github.com/shadowsocks/shadowsocks-go/releases/download/1.2.1/shadowsocks-server.tar.gz
+tar xvzf shadowsocks-server.tar.gz
+mv shadowsocks-server /opt/shadowsocks/
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/config.json
+mv config.json /opt/shadowsocks/

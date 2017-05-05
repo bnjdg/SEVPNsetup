@@ -1,0 +1,10 @@
+{
+    "port_password": {
+        "8387": "yourpassword",
+        "8388": "yourpassword",
+        "9018": "yourpassword",
+        "54214": "yourpassword"
+    },
+    "method": "aes-128-cfb",
+    "timeout": 600
+}
