@@ -99,9 +99,9 @@ iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 2000:4499,
 iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 2000:4499,4501:8000 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 2000:4499,4501:8000 -m state --state ESTABLISHED -j ACCEPT
 
-iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 65000:65500 -j REDIRECT --to-port 8387
-iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 8387,8388,65000:65500 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 8387,8388,65000:65500 -m state --state ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i $DEF_IF -p tcp -m multiport --dports 65000:65500 -j REDIRECT --to-port 8387
+iptables -A INPUT -i $DEF_IF -p tcp -m multiport --dports 8387,8388,65000:65500 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 8387,8388,65000:65500 -m state --state ESTABLISHED -j ACCEPT
 
 iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 53 -j DNAT --to-destination 172.16.0.1:53
 iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 5353 -j DNAT --to-destination 172.16.0.1:53
