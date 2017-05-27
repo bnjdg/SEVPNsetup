@@ -48,6 +48,7 @@ wget -O bash.bashrc https://gist.githubusercontent.com/bjdag1234/971ba7d1f783411
 mv /etc/bash.bashrc /etc/bash.bashrc.default
 mv bash.bashrc /etc/bash.bashrc
 rm /home/*/.bashrc
+rm /root/.bashrc
 
 fallocate -l 2G /swapfile
 chmod 600 /swapfile
@@ -78,7 +79,9 @@ make && make install
 cd
 
 wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
-cp tmux.conf /home/*/.tmux.conf
+for i in $(ls /home); do
+	cp tmux.conf /home/$i/.tmux.conf
+done
 cp tmux.conf /root/.tmux.conf
 rm tmux.conf
 
