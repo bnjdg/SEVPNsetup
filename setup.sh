@@ -14,35 +14,35 @@ mv dnsmasq.conf /etc/dnsmasq.conf
 cat /etc/resolv.conf.default > /etc/resolv.conf
 HOSTG=$(cat /etc/hosts | grep metadata.google.internal)
 if [[ $HOSTG =~ metadata.google.internal ]]; then
-    echo "server=169.254.169.254" >> /etc/dnsmasq.conf;
-    ( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
-    sed -i 's/nameserver 127.0.0.1/nameserver 169.254.169.254/g' /etc/resolv.conf;
+	echo "server=169.254.169.254" >> /etc/dnsmasq.conf;
+	( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
+	sed -i 's/nameserver 127.0.0.1/nameserver 169.254.169.254/g' /etc/resolv.conf;
 fi
+
 HOSTG=$(cat /etc/resolv.conf)
 if [[ $HOSTG =~ "compute.internal" ]]; then
-    echo "server=172.31.0.2" >> /etc/dnsmasq.conf;
-    echo "server=172.16.0.2" >> /etc/dnsmasq.conf;
-    sed -i 's/nameserver 127.0.0.1/nameserver 172.31.0.2/g' /etc/resolv.conf;
-    echo "nameserver "172.16.0.2" >> /etc/resolv.conf
+	echo "server=172.31.0.2" >> /etc/dnsmasq.conf;
+	echo "server=172.16.0.2" >> /etc/dnsmasq.conf;
+	sed -i 's/nameserver 127.0.0.1/nameserver 172.31.0.2/g' /etc/resolv.conf;
+	echo "nameserver 172.16.0.2" >> /etc/resolv.conf
 fi
 cat /etc/resolv.conf.default > /etc/resolv.conf
 apt-get install -y libreadline-dev libncurses5-dev libssl-dev libevent-dev
 DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
-if [[ $DISTRO  =~ Debian ]]; then 
-    echo deb http://httpredir.debian.org/debian jessie-backports main |  sed 's/\(.*-backports\) \(.*\)/&@\1-sloppy \2/' | tr @ '\n' | tee /etc/apt/sources.list.d/backports.list;
-    curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -;
-    echo deb http://haproxy.debian.net jessie-backports-1.6 main | tee /etc/apt/sources.list.d/haproxy.list;
-    apt-get update;
-    apt-get install -y haproxy -t jessie-backports;
-    apt-get install -y squid3;
-    apt-get install -y dnsutils;
- else 
-    apt-get install -y software-properties-common
-    add-apt-repository -y ppa:vbernat/haproxy-1.6
-    apt-get update
-    apt-get install -y squid haproxy; 
-    
- fi
+if [[ $DISTRO  =~ Debian ]]; then
+	echo deb http://httpredir.debian.org/debian jessie-backports main |  sed 's/\(.*-backports\) \(.*\)/&@\1-sloppy \2/' | tr @ '\n' | tee /etc/apt/sources.list.d/backports.list;
+	curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -;
+	echo deb http://haproxy.debian.net jessie-backports-1.6 main | tee /etc/apt/sources.list.d/haproxy.list;
+	apt-get update;
+	apt-get install -y haproxy -t jessie-backports;
+	apt-get install -y squid3;
+	apt-get install -y dnsutils;
+else
+	apt-get install -y software-properties-common
+	add-apt-repository -y ppa:vbernat/haproxy-1.6
+	apt-get update
+	apt-get install -y squid haproxy;
+fi
 
 wget -O bash.bashrc https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/bash.bashrc
 mv /etc/bash.bashrc /etc/bash.bashrc.default
@@ -50,9 +50,9 @@ mv bash.bashrc /etc/bash.bashrc
 rm /home/*/.bashrc
 
 fallocate -l 2G /swapfile
-chmod 600 /swapfile 
-mkswap /swapfile 
-swapon /swapfile 
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
 echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 sudo sysctl vm.swappiness=10
@@ -70,7 +70,6 @@ echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/90-useroverrides.conf
 
 ( echo "127.0.1.1 $(cat /etc/hostname)" | tee -a /etc/hosts ) &>/dev/null
 
-
 wget https://github.com/tmux/tmux/releases/download/2.1/tmux-2.1.tar.gz
 tar xvzf tmux-2.1.tar.gz
 cd tmux-2.1
@@ -82,7 +81,6 @@ wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e
 cp tmux.conf /home/*/.tmux.conf
 cp tmux.conf /root/.tmux.conf
 rm tmux.conf
-
 
 #Kill existing vpnservers
 service vpnserver stop &>/dev/null
@@ -124,16 +122,16 @@ wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117
 wget -O sony-domains.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sony-domains.txt
 IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 sed -i "s/123.123.123.123/$IP/g" squid.conf
-if [[ $DISTRO  =~ Debian ]]; then 
-    mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
-    mv squid.conf /etc/squid3/squid.conf;
-    mv sony-domains.txt /etc/squid3/sony-domains.txt
-    sed -i '#/etc/squid/#/etc/squid3/#g' /etc/squid3/squid.conf
-    ln -s /usr/bin/squid3 /usr/bin/squid
-else 
-    mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
-    mv squid.conf /etc/squid/squid.conf;
-    mv sony-domains.txt /etc/squid/sony-domains.txt
+if [[ $DISTRO  =~ Debian ]]; then
+mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
+mv squid.conf /etc/squid3/squid.conf;
+mv sony-domains.txt /etc/squid3/sony-domains.txt
+sed -i '#/etc/squid/#/etc/squid3/#g' /etc/squid3/squid.conf
+ln -s /usr/bin/squid3 /usr/bin/squid
+else
+mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
+mv squid.conf /etc/squid/squid.conf;
+mv sony-domains.txt /etc/squid/sony-domains.txt
 fi
 
 wget -O haproxy.cfg https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/haproxy.cfg
