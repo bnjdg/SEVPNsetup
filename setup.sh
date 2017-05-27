@@ -7,6 +7,24 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-
 echo "Installing dependencies"
 cat /etc/resolv.conf > /etc/resolv.conf.default
 apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
+wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
+mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
+mv dnsmasq.conf /etc/dnsmasq.conf
+/etc/init.d/dnsmasq restart
+cat /etc/resolv.conf.default > /etc/resolv.conf
+HOSTG=$(cat /etc/hosts | grep metadata.google.internal)
+if [[ $HOSTG =~ metadata.google.internal ]]; then
+    echo "server=169.254.169.254" >> /etc/dnsmasq.conf;
+    ( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
+    sed -i 's/nameserver 127.0.0.1/nameserver 169.254.169.254/g' /etc/resolv.conf;
+fi
+HOSTG=$(cat /etc/resolv.conf)
+if [[ $HOSTG =~ "compute.internal" ]]; then
+    echo "server=172.31.0.2" >> /etc/dnsmasq.conf;
+    echo "server=172.16.0.2" >> /etc/dnsmasq.conf;
+    sed -i 's/nameserver 127.0.0.1/nameserver 172.31.0.2/g' /etc/resolv.conf;
+    echo "nameserver "172.16.0.2" >> /etc/resolv.conf
+fi
 cat /etc/resolv.conf.default > /etc/resolv.conf
 apt-get install -y libreadline-dev libncurses5-dev libssl-dev libevent-dev
 DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
@@ -31,18 +49,6 @@ mv /etc/bash.bashrc /etc/bash.bashrc.default
 mv bash.bashrc /etc/bash.bashrc
 rm /home/*/.bashrc
 
-wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
-mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
-mv dnsmasq.conf /etc/dnsmasq.conf
-systemctl stop dnsmasq
-cat /etc/resolv.conf.default > /etc/resolv.conf
-
-HOSTG=$(cat /etc/hosts | grep metadata.google.internal)
-if [[ $HOSTG =~ metadata.google.internal ]]; then
-    echo "server=169.254.169.254" >> /etc/dnsmasq.conf;
-    sed -i 's/nameserver 127.0.0.1/nameserver 169.254.169.254/g' /etc/resolv.conf;
-fi
-
 fallocate -l 2G /swapfile
 chmod 600 /swapfile 
 mkswap /swapfile 
@@ -63,7 +69,7 @@ sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_
 echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/90-useroverrides.conf
 
 ( echo "127.0.1.1 $(cat /etc/hostname)" | tee -a /etc/hosts ) &>/dev/null
-( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
+
 
 wget https://github.com/tmux/tmux/releases/download/2.1/tmux-2.1.tar.gz
 tar xvzf tmux-2.1.tar.gz
