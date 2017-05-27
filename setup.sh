@@ -230,13 +230,11 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 echo "" >> /etc/network/interfaces
 cat tap_soft.interface >> /etc/network/interfaces
 
-TAP_ADDR=172.16.0.1
-TAP_SM=255.240.0.0
+TAP_ADDR=192.168.199.1
+TAP_SM=255.255.255.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
-ifconfig tap_soft | grep 172.16.0.1
-systemctl stop dnsmasq
-killall dnsmasq || (ps axu | grep dnsmasq | awk '{print $2}' | xargs kill)
-systemctl start dnsmasq
+ifconfig tap_soft | grep addr
+/etc/init.d/dnsmasq restart
 squid -k reconfigure
 systemctl restart haproxy
 
@@ -285,7 +283,7 @@ CONNECT [host_port] [protocol][crlf] [delay_split] POST http://mobile.twitter.co
 echo ""
 echo "\033[0m"
 echo "Your configuration details available at: $(cat SEVPN.setup | sprunge )"
-ifconfig tap_soft | grep 172.16.0.1
+ifconfig tap_soft | grep addr
 rm -f vpn_server.config
 rm -f *.txt
 rm -f iptables-vpn.sh
