@@ -1,47 +1,96 @@
 #!/bin/bash
 # SE-VPN script
 echo "Updating system"
-apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade -y
+apt-get update
+#DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
 echo "Installing dependencies"
 cat /etc/resolv.conf > /etc/resolv.conf.default
-apt-get install -y unzip curl git dnsmasq bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
-wget -O dnsmasq.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/dnsmasq.conf
-mv /etc/dnsmasq.conf /etc/dnsmasq.conf.default
-mv dnsmasq.conf /etc/dnsmasq.conf
-/etc/init.d/dnsmasq restart
+apt-get install -y unzip curl git bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
+echo "setting up dhcp-server"
+apt-get install -y isc-dhcp-server
+
+ln -s /etc/apparmor.d/usr.sbin.dhcpd /etc/apparmor.d/disable/
+apparmor_parser -R /etc/apparmor.d/usr.sbin.dhcpd
+
+cp -n /etc/dhcp/dhcpd.conf{,.bak}
+mv /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.default
+touch /etc/dhcp/dhcpd.conf
+
+cat <<EOF >> /etc/dhcp/dhcpd.conf
+default-lease-time 600;
+max-lease-time 7200;
+option domain-name "vpn.team28devs.com";
+subnet 5.5.0.0 netmask 255.255.240.0 {
+        range 5.5.1.1 5.5.14.254;
+        option domain-name-servers 5.5.0.1, 8.8.8.8, 207.67.222.222;
+        option routers 5.5.0.1;
+}
+EOF
+
+chown -R root:dhcpd /var/lib/dhcp/
+chmod 775 -R /var/lib/dhcp/
+
+echo "setting up bind9 dns server"
+apt-get install -y bind9 bind9utils bind9-doc
+cp /etc/bind/named.conf /etc/bind/named.conf.default
+sed -i 's#include "/etc/bind/named.conf.options"#//include "/etc/bind/named.conf.options"#g' /etc/bind/named.conf
+
+cat <<EOF >> /etc/bind/named.conf.local
+acl goodclients {
+    5.5.0.0/20;
+    localhost;
+    localnets;
+};
+
+options {
+    directory "/var/cache/bind";
+    recursion yes;
+    allow-query { goodclients; };
+    //dnssec-validation auto;
+    auth-nxdomain no;    # conform to RFC1035
+    listen-on-v6 { any; };
+    forwarders {
+        8.8.8.8;
+        8.8.4.4;
+        208.67.222.222;
+        208.67.220.220;
+        172.31.0.2;
+        172.16.0.2;
+    };
+    forward-only;
+    dnssec-enable yes;
+    dnssec-validation yes;
+};
+EOF
+#restore original resolv.conf
+systemctl restart bind9
 cat /etc/resolv.conf.default > /etc/resolv.conf
+
 HOSTG=$(cat /etc/hosts | grep metadata.google.internal)
 if [[ $HOSTG =~ metadata.google.internal ]]; then
-	echo "server=169.254.169.254" >> /etc/dnsmasq.conf;
-	( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
-	sed -i 's/nameserver 127.0.0.1/nameserver 169.254.169.254/g' /etc/resolv.conf;
+    echo "server=169.254.169.254" >> /etc/dnsmasq.conf;
+    ( echo "169.254.169.254 metadata.google.internal" | tee -a /etc/hosts ) &>/dev/null
 fi
 
-HOSTG=$(cat /etc/resolv.conf)
-if [[ $HOSTG =~ "compute.internal" ]]; then
-	echo "server=172.31.0.2" >> /etc/dnsmasq.conf;
-	echo "server=172.16.0.2" >> /etc/dnsmasq.conf;
-	sed -i 's/nameserver 127.0.0.1/nameserver 172.31.0.2/g' /etc/resolv.conf;
-	echo "nameserver 172.16.0.2" >> /etc/resolv.conf
-fi
 cat /etc/resolv.conf.default > /etc/resolv.conf
 apt-get install -y libreadline-dev libncurses5-dev libssl-dev libevent-dev
 DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
 if [[ $DISTRO  =~ Debian ]]; then
-	echo deb http://httpredir.debian.org/debian jessie-backports main |  sed 's/\(.*-backports\) \(.*\)/&@\1-sloppy \2/' | tr @ '\n' | tee /etc/apt/sources.list.d/backports.list;
-	curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -;
-	echo deb http://haproxy.debian.net jessie-backports-1.6 main | tee /etc/apt/sources.list.d/haproxy.list;
-	apt-get update;
-	apt-get install -y haproxy -t jessie-backports;
-	apt-get install -y squid3;
-	apt-get install -y dnsutils;
+    echo deb http://httpredir.debian.org/debian jessie-backports main |  sed 's/\(.*-backports\) \(.*\)/&@\1-sloppy \2/' | tr @ '\n' | tee /etc/apt/sources.list.d/backports.list;
+    curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -;
+    echo deb http://haproxy.debian.net jessie-backports-1.6 main | tee /etc/apt/sources.list.d/haproxy.list;
+    apt-get update;
+    apt-get install -y haproxy -t jessie-backports;
+    apt-get install -y squid3;
+    apt-get install -y dnsutils;
 else
-	apt-get install -y software-properties-common
-	add-apt-repository -y ppa:vbernat/haproxy-1.6
-	apt-get update
-	apt-get install -y squid haproxy;
+    apt-get install -y software-properties-common
+    add-apt-repository -y ppa:vbernat/haproxy-1.6
+    apt-get update
+    apt-get install -y squid haproxy;
 fi
 
 wget -O bash.bashrc https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/bash.bashrc
@@ -80,7 +129,7 @@ cd
 
 wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
 for i in $(ls /home); do
-	cp tmux.conf /home/$i/.tmux.conf
+    cp tmux.conf /home/$i/.tmux.conf
 done
 cp tmux.conf /root/.tmux.conf
 rm tmux.conf
@@ -145,16 +194,37 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
 
-#curl https://getcaddy.com | bash
-#wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/Caddyfile
-#wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/index.html
-#wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/caddy.service
-#mkdir -p /etc/caddy
-#mkdir -p /srv/www
-#mv Caddyfile /etc/caddy/
-#mv index.html /srv/www/
-#mv caddy.service /etc/systemd/system/
-#systemctl start caddy
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/ip6tables-vpn.sh
+chmod +x ip6tables-vpn.sh
+sh ip6tables-vpn.sh
+
+wget -O caddy_linux_amd64_custom.tar.gz 'https://caddyserver.com/download/linux/amd64?plugins=hook.service,http.authz,http.cgi,http.cors,http.expires,http.filemanager,http.filter,http.git,http.hugo,http.ipfilter,http.jwt,http.mailout,http.minify,http.proxyprotocol,http.ratelimit,http.realip,http.upload,net,tls.dns.cloudflare,tls.dns.digitalocean'
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/index.html
+mkdir -p /etc/caddy
+mv caddy_linux_amd64_custom.tar.gz /etc/caddy/
+cd /etc/caddy/
+tar xvzf caddy_linux_amd64_custom.tar.gz
+mkdir -p /var/www/html
+mkdir -p /var/log/caddy
+chown root:www-data /var/log/caddy/
+chmod 775 /var/log/caddy
+mv index.html /var/www/html/
+myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+cat <<EOF >> /etc/caddy/Caddyfile
+localhost:8081 somehost:8081 hostname.softether.net:8081{
+	gzip
+	log /var/log/caddy/access.log
+	tls off
+	root /var/www/html
+}
+EOF
+
+sed -i "s/somehost/$myip/g" /etc/caddy/Caddyfile
+cd
+wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/caddy.service
+mv caddy.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable caddy
 
 systemctl start vpnserver
 wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/wordlist.txt
@@ -181,6 +251,7 @@ vpncmd 127.0.0.1:5555 /server /cmd:ListenerList
 vpncmd 127.0.0.1:5555 /server /cmd:ListenerCreate 995
 vpncmd 127.0.0.1:5555 /server /cmd:ListenerDelete 443
 vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
+sed -i "s/hostname/$WORD$WORD2/g" /etc/caddy/Caddyfile
 systemctl restart vpnserver
 
 wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sprunge.sh
@@ -233,11 +304,11 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 echo "" >> /etc/network/interfaces
 cat tap_soft.interface >> /etc/network/interfaces
 
-TAP_ADDR=192.168.199.1
-TAP_SM=255.255.255.0
+TAP_ADDR=5.5.0.1
+TAP_SM=255.255.240.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
 ifconfig tap_soft | grep addr
-/etc/init.d/dnsmasq restart
+systemctl restart isc-dhcp-server.service
 squid -k reconfigure
 systemctl restart haproxy
 
@@ -291,3 +362,4 @@ rm -f vpn_server.config
 rm -f *.txt
 rm -f iptables-vpn.sh
 rm -f *.pdf
+systemctl start caddy
