@@ -57,10 +57,10 @@ iptables -A port-scan -p tcp --tcp-flags SYN,ACK,FIN,RST RST -m limit --limit 1/
 iptables -A port-scan -j DROP
 
 
-iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
-iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 22,80,443,995,5555,400,500,4500,1701,1194:1196,9091 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 22,80,443,995,5555,400,500,1194:1196 -j ACCEPT
+iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 22,80,443,995,5555,400,500,1194:1196 -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 22,80,443,995,5555,400,500,1194:1196 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 22,80,443,995,5555,400,500,1194:1196 -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p udp -m multiport --dports 993,8080,3128 -j ACCEPT
 iptables -A INPUT -i $DEF_IF -m state --state NEW,ESTABLISHED,RELATED -p tcp -m multiport --dports 993,8080,3128 -j ACCEPT
 iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 993,8080,3128  -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -82,45 +82,23 @@ iptables -A FORWARD -i $DEF_IF -o tun+ -m state --state RELATED,ESTABLISHED -j A
 iptables -A FORWARD -i tun+ -o ens0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i ens0 -o tun+ -m state --state RELATED,ESTABLISHED -j ACCEPT
 
-#redirect TNT ports to SoftEther VPN TCP
-iptables -t nat -A PREROUTING -i $DEF_IF -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -j REDIRECT --to-port 995
-iptables -A INPUT -i $DEF_IF -p tcp -m multiport --dports 5242,4244,9200,9201,21,137,8484,82 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 5242,4244,9200,9201,21,137,8484,82 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82 -j REDIRECT --to-port 1194
-iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 5242,4244,3128,9200,9201,21,137,8484,82,443,80 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 5243,9785 -j REDIRECT --to-port 1194
-iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 5243,9785 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 5243,9785 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i $DEF_IF -p udp -m multiport --dports 2000:4499,4501:8000 -j REDIRECT --to-port 1194
-iptables -A INPUT -i $DEF_IF -p udp -m multiport --dports 2000:4499,4501:8000 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p udp -m multiport --sports 2000:4499,4501:8000 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i $DEF_IF -p tcp -m multiport --dports 65000:65500 -j REDIRECT --to-port 8387
-iptables -A INPUT -i $DEF_IF -p tcp -m multiport --dports 8387,8388,65000:65500 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o $DEF_IF -p tcp -m multiport --sports 8387,8388,65000:65500 -m state --state ESTABLISHED -j ACCEPT
-
-iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 53 -j DNAT --to-destination 172.16.0.1:53
-iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 5353 -j DNAT --to-destination 172.16.0.1:53
-iptables -t nat -A PREROUTING -i tap_soft -p tcp --dport 5353 -j DNAT --to-destination 172.16.0.1:53
-iptables -t nat -A PREROUTING -i tap_soft -p tcp --dport 53 -j DNAT --to-destination 172.16.0.1:53
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.222.123 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.220.123 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 81.218.119.11 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 209.88.198.133 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.126.20 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 199.85.127.20 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 172.16.0.1 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.8.8 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 8.8.4.4 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.220.220 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -d 208.67.222.222 -j ACCEPT
-iptables -A INPUT -i tap_soft -p tcp --dport 53 -j DROP
-iptables -A INPUT -i tap_soft -p tcp --dport 5353 -j DROP
-
+#iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 53 -j DNAT --to-destination 192.168.199.1:53
+#iptables -t nat -A PREROUTING -i tap_soft -p udp --dport 5353 -j DNAT --to-destination 192.168.199.1:53
+#iptables -t nat -A PREROUTING -i tap_soft -p tcp --dport 5353 -j DNAT --to-destination 192.168.199.1:53
+#iptables -t nat -A PREROUTING -i tap_soft -p tcp --dport 53 -j DNAT --to-destination 192.168.199.1:53
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 208.67.222.123 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 208.67.220.123 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 81.218.119.11 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 209.88.198.133 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 199.85.126.20 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 199.85.127.20 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 5.5.0.1 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 8.8.8.8 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 8.8.4.4 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 208.67.220.220 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -d 208.67.222.222 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 53 -j ACCEPT
+iptables -A INPUT -i tap_soft -p udp --dport 5353 -j ACCEPT
 
 #allow ssh,www,https, letsencrypt
 
@@ -152,8 +130,6 @@ iptables -A OUTPUT -o tap_soft -j ACCEPT
 iptables -A FORWARD -i tap_soft -j ACCEPT
 iptables -A FORWARD -i tap_soft -o $DEF_IF -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i $DEF_IF -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i tap_soft -o ens0 -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i ens0 -o tap_soft -m state --state RELATED,ESTABLISHED -j ACCEPT
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT

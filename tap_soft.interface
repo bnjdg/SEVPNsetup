@@ -1,4 +1,4 @@
 auto tap_soft
 iface tap_soft inet static
-    address 5.5.0.1
-    netmask 255.255.240.0
+    address 192.168.199.1
+    netmask 255.255.255.0

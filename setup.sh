@@ -22,10 +22,10 @@ touch /etc/dhcp/dhcpd.conf
 cat <<EOF >> /etc/dhcp/dhcpd.conf
 default-lease-time 600;
 max-lease-time 7200;
-option domain-name "vpn.team28devs.com";
-subnet 5.5.0.0 netmask 255.255.240.0 {
-        range 5.5.1.1 5.5.14.254;
-        option domain-name-servers 5.5.0.1, 8.8.8.8, 207.67.222.222;
+option domain-name "vpn.example.com";
+subnet 192.168.199.0 netmask 255.255.255.0 {
+        range 192.168.199.101 192.168.199.150;
+        option domain-name-servers 192.168.199.1, 8.8.8.8, 207.67.222.222;
         option routers 5.5.0.1;
 }
 EOF
