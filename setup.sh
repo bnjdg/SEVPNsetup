@@ -316,9 +316,9 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 echo "" >> /etc/network/interfaces
 cat tap_soft.interface >> /etc/network/interfaces
 
-TAP_ADDR=192.168.199.1
-TAP_SM=255.255.255.0
-ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
+sed 's#exit 0#ifconfig tap_soft 192.168.199.1/24\n/usr/sbin/dhcpd\n\nexit 0#g' /etc/rc.local
+
+ifconfig tap_soft 192.168.199.1/24
 ifconfig tap_soft | grep addr
 systemctl restart isc-dhcp-server.service
 squid -k reconfigure
