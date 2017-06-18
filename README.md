@@ -10,7 +10,7 @@ Some parts adapted to Google Cloud Engine VMs
 * Execution for installation and setup
 
 ```shell
-wget -O - bit.ly/sevpnsetup | sudo bash
+wget -O - bit.ly/se-vpnsetup | sudo bash
 ```
 
 This script fetches the SoftEtherVPN Server Source Code from github
@@ -34,15 +34,3 @@ IP tables are configured to provide DDOS protection and port redirection:
 Haproxy is installed to share port 80,443,8080 to squid, ssh and SE-VPN
 
 Lastly: It outputs a URL with the Sample OpenVPN config which can be modified to connect to various ports.
-
-HTTP Proxy Injector (PC) : https://sites.google.com/site/httpproxyinjector/download
-HTTP Injector (Android): https://play.google.com/store/apps/details?id=com.evozi.injector&hl=en
-
-TalkNText Working payload under TP10 (to 3545) and T2 (send to 4545 3x  for 3days ): 
-```HTTP Proxy Injector PC
-CONNECT [host_port] [protocol][crlf] POST http://mobile.twitter.com/ HTTP/1.1[crlf]Host: mobile.twitter.com[crlf]X-Online-Host: mobile.twitter.com[crlf]X-Forward-Host: mobile.twitter.com[crlf]X-Forwarded-For: mobile.twitter.com[crlf]Connection: Keep-Alive[crlf]CONNECT [host_port] [protocol][crlf][crlf]
-```
-
-```HTTP Injector Android
-CONNECT [host_port] [protocol][crlf] [delay_split] POST http://mobile.twitter.com/ HTTP/1.1[crlf]Host: mobile.twitter.com[crlf]X-Online-Host: mobile.twitter.com[crlf]X-Forward-Host: mobile.twitter.com[crlf]X-Forwarded-For: mobile.twitter.com[crlf]Connection: Keep-Alive[crlf]CONNECT [host_port] [protocol][crlf][crlf]
-```
