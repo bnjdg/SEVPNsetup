@@ -9,12 +9,8 @@ echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-
 echo "Installing dependencies"
 cat /etc/resolv.conf > /etc/resolv.conf.default
 apt-get install -y unzip curl git bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
-echo "setting up dhcp-server"
+apt-get install -y unzip curl git bc make gcc openssl build-essential iptables-persistent haproxy tmux mosh
 apt-get install -y isc-dhcp-server
-
-ln -s /etc/apparmor.d/usr.sbin.dhcpd /etc/apparmor.d/disable/
-apparmor_parser -R /etc/apparmor.d/usr.sbin.dhcpd
-
 cp -n /etc/dhcp/dhcpd.conf{,.bak}
 mv /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.conf.default
 touch /etc/dhcp/dhcpd.conf
@@ -22,9 +18,9 @@ touch /etc/dhcp/dhcpd.conf
 cat <<EOF >> /etc/dhcp/dhcpd.conf
 default-lease-time 600;
 max-lease-time 7200;
-option domain-name "vpn.example.com";
+option domain-name "vpn.team28devs.com";
 subnet 192.168.199.0 netmask 255.255.255.0 {
-        range 192.168.199.101 192.168.199.150;
+        range 192.168.199.100 192.168.199.150;
         option domain-name-servers 192.168.199.1, 8.8.8.8, 207.67.222.222;
         option routers 5.5.0.1;
 }
@@ -32,6 +28,17 @@ EOF
 
 chown -R root:dhcpd /var/lib/dhcp/
 chmod 775 -R /var/lib/dhcp/
+
+/etc/init.d/apparmor stop
+cat << 'EOF' >> /etc/apparmor.d/usr.sbin.dhcpd
+/var/lib/dhcp/dhcpd.leases* rwl,
+/var/lib/dhcp/dhcpd6.leases* rwl,
+/etc/dhcp/dhcpd.conf r,
+/etc/dhcp/dhcpd6.conf r,
+EOF
+/etc/init.d/apparmor start
+service isc-dhcp-server restart
+
 
 echo "setting up bind9 dns server"
 apt-get install -y bind9 bind9utils bind9-doc
@@ -258,7 +265,6 @@ wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7
 chmod 755 /usr/bin/sprunge
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/hpi.txt
 wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/injector.txt
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
@@ -272,7 +278,6 @@ HPI="$(cat hpi.txt)"
 REMOTE="$(ls *remote*.ovpn)"
 SRVHOSTNAMEGLOBE="$(hostname)_tcp_globe_mgc.ovpn"
 SRVHOSTNAMETNT="$(hostname)_tcp_tnt.ovpn"
-SRVHOSTNAMEUDP="$(hostname)_udp_globe_inet.ovpn"
 SRVHOSTNAMEHPI="$(hostname)_tcp_hpi.ovpn"
 SRVHOSTNAMEINJ="$(hostname)_tcp_injector.ovpn"
 rm -f *bridge_l2.ovpn
@@ -293,7 +298,6 @@ sed -i 's/auth-user-pass/auth-user-pass account.txt/' *.ovpn
 sed -i '/^\s*$/d' *.ovpn
 sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
 sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
-sed -i "s#<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 sed -i "s#<ca>#$INJ#" *tcp_injector.ovpn
 sed -i "s#<ca>#$HPI#" *tcp_hpi.ovpn
 
@@ -326,7 +330,6 @@ echo "Go to the these urls to get your OpenVPN config file"
 echo "\033[1;33m"
 echo Globe-mgc: $( cat *tcp_globe*.ovpn | sprunge ) | tee -a SEVPN.setup
 echo TCP_TNT: $(cat *tcp_tnt*.ovpn | sprunge ) | tee -a SEVPN.setup
-echo UDP_GLOBE: $( cat *udp*.ovpn | sprunge ) | tee -a SEVPN.setup
 echo TCP_HPI: $(cat *tcp_hpi*.ovpn | sprunge ) | tee -a SEVPN.setup
 echo TCP_INJECTOR: $(cat *tcp_injector*.ovpn | sprunge )  | tee -a SEVPN.setup
 rm -f *.ovpn
@@ -347,13 +350,6 @@ echo "Squid TCP Port: 3128"| tee -a SEVPN.setup
 echo "SSH TCP Port: 22"| tee -a SEVPN.setup
 echo "SEVPN/OpenVPN TCP Ports: 82,995,992,5555,5242,4244,9200,9201,21,137,8484"| tee -a SEVPN.setup
 echo "OpenVPN UDP Ports: 80,82,443,5242,4244,3128,9200,9201,21,137,8484,,5243,9785,2000-4499,4501-8000"| tee -a SEVPN.setup
-echo "HTTP Proxy Injector (PC) : https://sites.google.com/site/httpproxyinjector/download\
-HTTP Injector (Android): https://play.google.com/store/apps/details?id=com.evozi.injector&hl=en\
-TalkNText Working payload under TP10 (to 3545) and T2 (send to 4545 3x  for 3days ): \
-HTTP Proxy Injector PC\
-CONNECT [host_port] [protocol][crlf] POST http://mobile.twitter.com/ HTTP/1.1[crlf]Host: mobile.twitter.com[crlf]X-Online-Host: mobile.twitter.com[crlf]X-Forward-Host: mobile.twitter.com[crlf]X-Forwarded-For: mobile.twitter.com[crlf]Connection: Keep-Alive[crlf]CONNECT [host_port] [protocol][crlf][crlf]\
-HTTP Injector Android\
-CONNECT [host_port] [protocol][crlf] [delay_split] POST http://mobile.twitter.com/ HTTP/1.1[crlf]Host: mobile.twitter.com[crlf]X-Online-Host: mobile.twitter.com[crlf]X-Forward-Host: mobile.twitter.com[crlf]X-Forwarded-For: mobile.twitter.com[crlf]Connection: Keep-Alive[crlf]CONNECT [host_port] [protocol][crlf][crlf]"| tee -a SEVPN.setup
 echo ""
 echo "\033[0m"
 echo "Your configuration details available at: $(cat SEVPN.setup | sprunge )"
