@@ -1,10 +1,11 @@
 #!/bin/sh
 rm -f *.ovpn *.pdf *.txt *.zip
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/udp.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/hpi.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/injector.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/globe.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/tnt.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/udp.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/hpi.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/injector.txt
+cat SEVPN.setup | grep password
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
@@ -40,6 +41,9 @@ sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
 sed -i "s#<ca>#$GLOBE_INET#" *udp_globe_inet.ovpn
 sed -i "s#<ca>#$INJ#" *tcp_injector.ovpn
 sed -i "s#<ca>#$HPI#" *tcp_hpi.ovpn
+sed -i "s/^remote/#remote/g" *tcp_injector.ovpn
+sed -i "s/123.123.123.123/$myip/g" *tcp_injector.ovpn
+sed -i "s/^cipher/remote 127.0.0.1 443\ncipher/g" *tcp_injector.ovpn
 
 clear
 echo "\033[0;34mGenerating OpenVPN config files."

@@ -29,21 +29,15 @@ EOF
 chown -R root:dhcpd /var/lib/dhcp/
 chmod 775 -R /var/lib/dhcp/
 
-DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
-if [[ $DISTRO  =~ Debian ]]; then
-	echo;
-else
-
-/etc/init.d/apparmor stop
-cat << 'EOF' >> /etc/apparmor.d/usr.sbin.dhcpd
+touch /etc/apparmor.d/local/usr,sbin.dhcpd
+cat << 'EOF' >> /etc/apparmor.d/local/usr.sbin.dhcpd
 /var/lib/dhcp/dhcpd.leases* rwl,
 /var/lib/dhcp/dhcpd6.leases* rwl,
 /etc/dhcp/dhcpd.conf r,
 /etc/dhcp/dhcpd6.conf r,
 EOF
-/etc/init.d/apparmor start
+apparmor_parser -R /etc/apparmor.d/usr.sbin.dhcpd
 
-fi
 
 echo "setting up bind9 dns server"
 apt-get install -y bind9 bind9utils bind9-doc
@@ -107,7 +101,7 @@ else
     apt-get install -y squid haproxy;
 fi
 
-wget -O bash.bashrc https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/bash.bashrc
+wget -O bash.bashrc https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/bash.bashrc
 mv /etc/bash.bashrc /etc/bash.bashrc.default
 mv bash.bashrc /etc/bash.bashrc
 rm /home/*/.bashrc
@@ -141,7 +135,7 @@ cd tmux-2.1
 make && make install
 cd
 
-wget -O tmux.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tmux.conf
+wget -O tmux.conf https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/tmux.conf
 for i in $(ls /home); do
     cp tmux.conf /home/$i/.tmux.conf
 done
@@ -167,8 +161,9 @@ rm -rf /usr/bin/vpnserver &>/dev/null
 rm -rf /usr/bin/vpnclient &>/dev/null
 rm -rf /usr/bin/vpncmd &>/dev/null
 rm -rf /usr/bin/vpnbrige &>/dev/null
-git clone https://github.com/SoftEtherVPN/SoftEtherVPN.git
-cd SoftEtherVPN
+wget -qO SoftEtherVPN-master.zip https://codeload.github.com/SoftEtherVPN/SoftEtherVPN/zip/master
+unzip SoftEtherVPN-master.zip
+cd SoftEtherVPN-master
 sed -i 's#/usr/vpnserver#/opt/vpnserver#g' src/makefiles/linux_*.mak
 sed -i 's#/usr/vpnclient#/opt/vpnclient#g' src/makefiles/linux_*.mak
 sed -i 's#/usr/vpnbridge#/opt/vpnbridge#g' src/makefiles/linux_*.mak
@@ -184,9 +179,9 @@ systemctl stop squid
 systemctl stop haproxy
 cd ..
 
-wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid.conf
-wget -O squid3.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid3.conf
-wget -O sony-domains.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sony-domains.txt
+wget -O squid.conf https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/squid.conf
+wget -O squid3.conf https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/squid3.conf
+wget -O sony-domains.txt https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/sony-domains.txt
 IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 if [[ $DISTRO  =~ Debian ]]; then
 	sed -i "s/123.123.123.123/$IP/g" squid3.conf
@@ -201,20 +196,20 @@ else
 	mv sony-domains.txt /etc/squid/sony-domains.txt
 fi
 
-wget -O haproxy.cfg https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/haproxy.cfg
+wget -O haproxy.cfg https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/haproxy.cfg
 mv /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.default
 mv haproxy.cfg /etc/haproxy/haproxy.cfg
 
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/iptables-vpn.sh
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/iptables-vpn.sh
 chmod +x iptables-vpn.sh
 sh iptables-vpn.sh
 
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/ip6tables-vpn.sh
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/ip6tables-vpn.sh
 chmod +x ip6tables-vpn.sh
 sh ip6tables-vpn.sh
 
 wget -O caddy_linux_amd64_custom.tar.gz 'https://caddyserver.com/download/linux/amd64?plugins=hook.service,http.authz,http.cgi,http.cors,http.expires,http.filemanager,http.filter,http.git,http.hugo,http.ipfilter,http.jwt,http.mailout,http.minify,http.proxyprotocol,http.ratelimit,http.realip,http.upload,net,tls.dns.cloudflare,tls.dns.digitalocean'
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/index.html
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/index.html
 mkdir -p /etc/caddy
 mv caddy_linux_amd64_custom.tar.gz /etc/caddy/
 cd /etc/caddy/
@@ -236,13 +231,13 @@ EOF
 
 sed -i "s/somehost/$myip/g" /etc/caddy/Caddyfile
 cd
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/caddy.service
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/caddy.service
 mv caddy.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable caddy
 
 systemctl start vpnserver
-wget -O wordlist.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/wordlist.txt
+wget -O wordlist.txt https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/wordlist.txt
 FILE=wordlist.txt
 WORD=$(sort -R $FILE | head -1)
 WORD2=$(sort -R $FILE | head -1)
@@ -269,12 +264,12 @@ vpncmd 127.0.0.1:5555 /SERVER /CMD:DynamicDnsSetHostname $WORD$WORD2
 sed -i "s/hostname/$WORD$WORD2/g" /etc/caddy/Caddyfile
 systemctl restart vpnserver
 
-wget -O /usr/bin/sprunge https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sprunge.sh
+wget -O /usr/bin/sprunge https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/sprunge.sh
 chmod 755 /usr/bin/sprunge
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/globe.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tnt.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/hpi.txt
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/injector.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/globe.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/tnt.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/hpi.txt
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/injector.txt
 vpncmd 127.0.0.1:5555 /SERVER /CMD:OpenVpnMakeConfig openvpn
 unzip openvpn.zip
 myip="$(dig +short myip.opendns.com @resolver1.opendns.com)"
@@ -308,16 +303,18 @@ sed -i "s#<ca>#$GLOBE_MGC#" *tcp_globe_mgc.ovpn
 sed -i "s#<ca>#$TNT#" *tcp_tnt.ovpn
 sed -i "s#<ca>#$INJ#" *tcp_injector.ovpn
 sed -i "s#<ca>#$HPI#" *tcp_hpi.ovpn
+sed -i "s/^remote/#remote/g" *tcp_injector.ovpn
+sed -i "s/123.123.123.123/$myip/g" *tcp_injector.ovpn
+sed -i "s/^cipher/remote 127.0.0.1 443\ncipher/g" *tcp_injector.ovpn
 
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/getconfig.sh
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/getconfig.sh
 chmod +x getconfig.sh
 
-wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/tap_soft.interface
+wget https://raw.githubusercontent.com/bjdag1234/SEVPNsetup/master/tap_soft.interface
 echo "" >> /etc/network/interfaces
 cat tap_soft.interface >> /etc/network/interfaces
 
 sed 's#exit 0#ifconfig tap_soft 192.168.199.1/24\n/usr/sbin/dhcpd\n\nexit 0#g' /etc/rc.local
-
 ifconfig tap_soft 192.168.199.1/24
 ifconfig tap_soft | grep addr
 systemctl restart isc-dhcp-server.service
