@@ -363,11 +363,19 @@ rm -f vpn_server.config
 rm -f *.txt
 rm -f iptables-vpn.sh
 rm -f *.pdf
+
 service vpnserver restart
 systemctl start caddy
 service isc-dhcp-server restart
 service bind9 restart
-service squid restart || true
-squid -k reconfigure || true
 service haproxy restart
+/usr/sbin/dhcpd
 
+DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
+if [[ $DISTRO  =~ Debian ]]; then
+	service squid3 start || true
+	squid3 -k reconfigure || true
+else
+	service squid start || true
+	squid -k reconfigure || true
+fi

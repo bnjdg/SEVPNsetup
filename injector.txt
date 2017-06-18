@@ -1,1 +1,1 @@
-\n\nhttp-proxy 123.123.123.123 3128\n;instagram\nglobe_surfalert\nroute-delay 2\nkeepalive 90 180\nredirect-gateway def1\nnregister-dns\n\n<ca>
+\n\nhttp-proxy 123.123.123.123 3128\n;instagram\nglobe_surfalert\nroute-delay 2\nkeepalive 90 180\nredirect-gateway def1\nregister-dns\n\n<ca>
