@@ -45,9 +45,6 @@ EOF
 
 fi
 
-service isc-dhcp-server restart
-
-
 echo "setting up bind9 dns server"
 apt-get install -y bind9 bind9utils bind9-doc
 cp /etc/bind/named.conf /etc/bind/named.conf.default
@@ -55,9 +52,10 @@ sed -i 's#include "/etc/bind/named.conf.options"#//include "/etc/bind/named.conf
 
 cat <<EOF >> /etc/bind/named.conf.local
 acl goodclients {
-    5.5.0.0/20;
+    192.168.199.0/24;
     localhost;
     localnets;
+	::;
 };
 
 options {
@@ -68,18 +66,19 @@ options {
     auth-nxdomain no;    # conform to RFC1035
     listen-on-v6 { any; };
     forwarders {
-        8.8.8.8;
+		8.8.8.8;
         8.8.4.4;
         208.67.222.222;
         208.67.220.220;
         172.31.0.2;
         172.16.0.2;
     };
-    forward-only;
+    //forward-only;
     dnssec-enable yes;
     dnssec-validation yes;
 };
 EOF
+#resto
 #restore original resolv.conf
 systemctl restart bind9
 cat /etc/resolv.conf.default > /etc/resolv.conf
@@ -186,19 +185,20 @@ systemctl stop haproxy
 cd ..
 
 wget -O squid.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid.conf
+wget -O squid3.conf https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/squid3.conf
 wget -O sony-domains.txt https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/sony-domains.txt
 IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-sed -i "s/123.123.123.123/$IP/g" squid.conf
 if [[ $DISTRO  =~ Debian ]]; then
-mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
-mv squid.conf /etc/squid3/squid.conf;
-mv sony-domains.txt /etc/squid3/sony-domains.txt
-sed -i '#/etc/squid/#/etc/squid3/#g' /etc/squid3/squid.conf
-ln -s /usr/bin/squid3 /usr/bin/squid
+	sed -i "s/123.123.123.123/$IP/g" squid3.conf
+	mv /etc/squid3/squid.conf /etc/squid3/squid.conf.default;
+	mv squid3.conf /etc/squid3/squid.conf;
+	mv sony-domains.txt /etc/squid3/sony-domains.txt
+	ln -s /usr/bin/squid3 /usr/bin/squid
 else
-mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
-mv squid.conf /etc/squid/squid.conf;
-mv sony-domains.txt /etc/squid/sony-domains.txt
+	sed -i "s/123.123.123.123/$IP/g" squid.conf
+	mv /etc/squid/squid.conf /etc/squid/squid.conf.default;
+	mv squid.conf /etc/squid/squid.conf;
+	mv sony-domains.txt /etc/squid/sony-domains.txt
 fi
 
 wget -O haproxy.cfg https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4bf5/raw/haproxy.cfg
@@ -316,8 +316,8 @@ wget https://gist.githubusercontent.com/bjdag1234/971ba7d1f7834117e85a50d42c1d4b
 echo "" >> /etc/network/interfaces
 cat tap_soft.interface >> /etc/network/interfaces
 
-TAP_ADDR=5.5.0.1
-TAP_SM=255.255.240.0
+TAP_ADDR=192.168.199.1
+TAP_SM=255.255.255.0
 ifconfig tap_soft $TAP_ADDR netmask $TAP_SM
 ifconfig tap_soft | grep addr
 systemctl restart isc-dhcp-server.service
@@ -366,4 +366,11 @@ rm -f vpn_server.config
 rm -f *.txt
 rm -f iptables-vpn.sh
 rm -f *.pdf
+service vpnserver restart
 systemctl start caddy
+service isc-dhcp-server restart
+service bind9 restart
+service squid restart || true
+squid -k reconfigure || true
+service haproxy restart
+
