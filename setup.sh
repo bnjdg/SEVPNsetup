@@ -29,6 +29,11 @@ EOF
 chown -R root:dhcpd /var/lib/dhcp/
 chmod 775 -R /var/lib/dhcp/
 
+DISTRO=$(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 || uname -om)
+if [[ $DISTRO  =~ Debian ]]; then
+	echo;
+else
+
 /etc/init.d/apparmor stop
 cat << 'EOF' >> /etc/apparmor.d/usr.sbin.dhcpd
 /var/lib/dhcp/dhcpd.leases* rwl,
@@ -37,6 +42,9 @@ cat << 'EOF' >> /etc/apparmor.d/usr.sbin.dhcpd
 /etc/dhcp/dhcpd6.conf r,
 EOF
 /etc/init.d/apparmor start
+
+fi
+
 service isc-dhcp-server restart
 
 
